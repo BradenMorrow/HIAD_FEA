@@ -1,0 +1,1 @@
+Analyze the response of a column under buckling.  Use a small perturbation force to induce buckling.

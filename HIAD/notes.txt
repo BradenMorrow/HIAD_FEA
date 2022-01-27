@@ -1,0 +1,200 @@
+September 10, 2014
+
+Code is working.
+Able to run through validation 1 & 2, large deflection cantilever.
+Solver is having issues.  Can't get through 45 degree curve validation.
+Get correct answer with 300 lbs and one step.
+
+Trying to fix solver.
+
+Solver now working much better - still may be taking too many increments
+Able to get through validation problems without trouble
+
+
+August 1, 2014
+Begining material nonlinearity investigation
+
+
+September 10, 2014
+Believe nonlinear cord is implemented correctly, issue may be with solver
+
+Trying to implement arc-length method
+
+
+October 28, 2014
+Solver seems to be working, although it needs refinement.  Able to decrease
+step size, but not increase when needed.
+
+Refining material nonlinearity.  Able to solve 2D beam case past wrinkling
+load, however it is not 3D general.  Modifying get_KL_P to find location
+of NA in 3D.
+
+
+November 12, 2014
+I believe that the material model, (cords and shell) is now general 3D.
+Able to converge past wrinkling for test case (71 deg, 20 psi) in two 
+orthogonal orientations.
+
+Working on including first order shear deformation.
+
+
+December 18, 2014
+3D corotational formulation has been implemented
+Arc-length solver has been implemented, (must refine load stepping)
+Shear deformation is included in the corotational formulation
+Test cases are working in multiple orientations
+
+Next steps:
+Clean up code
+Analyze straight beam bending tests
+
+
+December 31, 2014
+Beam analysis is in working order.
+Have implemented a version of smart load stepping.
+Refinements will be ongoing with modeling
+
+Will begin to develop a torus model of the torus testing being conducted at UMaine
+
+
+January 28, 2015
+Had to make significant alterations to previous version of FE routine.
+Now seems to be in working order
+
+Calculating the initial stiffness matrix:
+	-Locate NA
+	-Calculate stiffness about NA
+	-Solve Eigenvalue problem
+	-Generate stiffness matrix in principal coordinate system
+	-Transform stiffness matrix to local coordinate system
+
+Now using quaternions to handle large rotations
+
+Updates to arc-length solver
+
+Routine seems to be able to handle wrinkling in most cases
+
+Able to run preliminary torus model, (distributed in-plane loading) cords loose stiffness
+
+
+February 3, 2015
+Clean up routine
+Incorporate spring boundary conditions for torus analysis
+
+
+February 26, 2015
+Linear spring boundaries have been incorporated
+Having trouble with solver, can't get over wrinkling
+
+Will rework analysis architecture, cleanup
+
+Try to incorporate MATLAB solver
+
+
+March 19, 2015
+Spent a significant amount of time refining routine.  Was having trouble getting past wrinkling.
+Rewrote equilibrium equations in element routine.  Refined cord input (smoother curve).
+Using 'step-work' arc-length solver.  Much better convergence now.
+
+Will clean up routine.  Refine step-work solver.
+
+
+
+March 30, 2015
+Was still having trouble getting past the wrinkling load.
+The error was found in the calculation of the NA.  I am now calculating the
+NA using the tangent stiffnesses after itterating to find the bending axis.
+
+The routine is able to get past wrinkling without any trouble, using the
+Newton solver.
+
+Next steps: clean up code, model beams, return to modeling tori
+
+
+
+April 15, 2015
+Having success modeling beams and single torus.
+Modeled all beams in 30MAR15_all
+Modeled single torus in 09APR15_tor - able to track buckled shape with 
+step-work solver
+
+Adding realism
+Modified BCs, torus vertical and tangential supports at 4 points around torus
+Bilinear support spring to allow liftoff of torus during buckling
+Gravity loading
+Now accomodates load steps
+
+Must incorporate measured loading from test
+Strap load and torsional moment if top and bottom strap loads are not equal
+
+Must include measured geometry
+
+Must apply load so that strap load is measure load, by applying measured load
+some of the force will go into the reaction when the strap deviates from the 
+nominal location.  Constrain force? Constrain temperature?  Will start with
+applying strap loads.
+
+
+
+May 11, 2015
+Have come up with a cord-force algorithm for modeling cord hysteresis.
+Trying to implements for straight tube tests - loading and unloading.
+
+
+May 28, 2011
+Had success with hysteresis algorith
+Implemented displacement control algorithm
+Updated arc-length control algorithm (Clarke and Hancock 1990)
+Linearizing cord force-strain relationship for each step
+
+Going back to torus analysis
+Will implement two loading straps with rigid link
+displacement control algorithm may be useful
+
+
+June 5, 2015
+Implemented two load straps
+General refinement
+
+Implementing measured torus geometry and measured torus loads
+
+
+July 1, 2015
+Implemented measured geometry (T5C-1) torus.  There is no internal forces
+in initial configuration.
+
+Reworked average element triad (R_bar) in corotational formulation.
+Now simply the average of Ni and Nj.  Seems to be working.
+
+Having luck modeling T5C-1 torus.  Obtaining similar buckling mode at
+buckling load.  Using strap end displacement controlled analysis.  Must
+decrease strap stiffness significantly.
+
+Next steps:
+Need to control displacement with strap passing through location of pulley
+Convergence study with strap stiffness
+
+
+August 20, 2015
+Routine seems to be working well.
+Success with follower forces.
+Success with validation cases (lin elastic torus, large deflection cantilever).
+Running analyses for modeling paper (beams and tori).
+
+
+September 18, 2015
+Time to do some cleanup
+
+
+September 21, 2015
+Trying to change to an object oriented framework, at least make elements self contained.
+
+
+February 02, 2016
+Now using a flexibility based fiber beam element
+Straight tube tests validated
+Ready to move to the next level of modeling complexity
+
+
+
+
