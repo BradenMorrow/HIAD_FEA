@@ -5,9 +5,13 @@ close all
 %% USER INPUT
 % Define inboard torus major radius
 r_major = 30;
+
 % Minor radius of tori
 r_minor = [10
           10]/2;
+
+% ADD STRAP INTERSECTION LOCATION HERE
+      
 % HIAD angle with vertical
 alpha_cone = 70;
 
@@ -35,18 +39,16 @@ ts_theta0 = 15*pi/180;
 % load to be applied to testing straps
 load = 10;
 
-% END USER INPUT
-
 
 %% Define Model Inputs
 % Torus centers
 % C = [X Z] locations
 C = two_tori_config(r_major,r_minor,alpha_cone);
 
-% Define torus properties
+% User defined torus properties
 tor = define_tor(C,r_minor);
 
-% Define strap properties
+% User defined strap properties and configuration
 straps = define_straps(C,r_minor,alpha_cone,num_straps);
 
 
@@ -71,6 +73,7 @@ FEM.PLOT = plot_controls;
 [FEM,rebound,test_theta] = build_testing_links_straps(FEM,C,tor,straps,load,theta,th_tst);
 
 FEM.MODEL.nodes(:,3) = FEM.MODEL.nodes(:,3)*(-1)+C(2,2);
+
 %Plot initial FEM
 FEM_plot(FEM)
 
