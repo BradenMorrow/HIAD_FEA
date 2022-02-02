@@ -1,4 +1,4 @@
-function [FEM,rebound,theta] = build_testing_links_straps(FEM,C,tor,straps,load,tori_theta,theta1)
+function [FEM,rebound,theta] = build_testing_links_straps(FEM,C,tor,straps,load,tori_theta,theta1,test_rad,test_z)
 %% GENERAL
 % Theta tolerance
 tol = 1e-12;
@@ -44,9 +44,9 @@ y2 = C(2,1)*sin(theta);
 z2 = C(2,2)*ones(size(theta))+tor(1).r;
 % Strap Element Node Locations
 nodes2 = [x2 y2 z2];
-x3 = (0.5*C(1,1))*cos(theta);
-y3 = (0.5*C(1,1))*sin(theta);
-z3 = (C(1,2)+((abs(C(1,2)-C(2,2))/2)))*ones(size(theta));
+x3 = test_rad*cos(theta);
+y3 = test_rad*sin(theta);
+z3 = test_z*ones(size(theta));
 nodes3 = [x3 y3 z3];
 tangent  = circle_tan([C(1,:) C(2,:)], [r(1) r(2)], 0); % Find tangent line beetween tori
 x4 = tangent(1,1)*cos(theta);
@@ -57,13 +57,13 @@ x5 = tangent(2,1)*cos(theta);
 y5 = tangent(2,1)*sin(theta);
 z5 = tangent(2,2)*ones(size(theta));
 nodes5 = [x5, y5, z5];
-x6 = (0.5*C(1,1))*cos(theta)+4*cos(theta+((3*pi)/4));
-y6 = (0.5*C(1,1))*sin(theta)+4*sin(theta+((3*pi)/4));
-z6 = (C(1,2)+((abs(C(1,2)-C(2,2))/2)))*ones(size(theta));
+x6 = test_rad*cos(theta)+4*cos(theta+((3*pi)/4));
+y6 = test_rad*sin(theta)+4*sin(theta+((3*pi)/4));
+z6 = test_z*ones(size(theta));
 nodes6 = [x6 y6 z6];
-x7 = (0.5*C(1,1))*cos(theta)+4*cos(theta+((5*pi)/4));
-y7 = (0.5*C(1,1))*sin(theta)+4*sin(theta+((5*pi)/4));
-z7 = (C(1,2)+((abs(C(1,2)-C(2,2))/2)))*ones(size(theta));
+x7 = test_rad*cos(theta)+4*cos(theta+((5*pi)/4));
+y7 = test_rad*sin(theta)+4*sin(theta+((5*pi)/4));
+z7 = test_z*ones(size(theta));
 nodes7 = [x7 y7 z7];
 
 nodes = [nodes1; nodes2; nodes3; nodes4; nodes5; nodes6; nodes7];

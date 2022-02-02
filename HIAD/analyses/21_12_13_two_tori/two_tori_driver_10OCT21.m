@@ -35,6 +35,10 @@ ts_theta0 = 15*pi/180;
 % load to be applied to testing straps
 load = 10;
 
+% Location of testing strap end in Radius-Z space
+test_rad = 20;
+test_z = 20;
+
 % END USER INPUT
 
 
@@ -68,9 +72,11 @@ FEM.PLOT = plot_controls;
 [FEM] = build_bench(FEM,C,tor,theta,th_bench, K_shear);
 
 % Assemble testing link and strap elements
-[FEM,rebound,test_theta] = build_testing_links_straps(FEM,C,tor,straps,load,theta,th_tst);
+[FEM,rebound,test_theta] = build_testing_links_straps(FEM,C,tor,straps,load,theta,th_tst,test_rad,test_z);
 
+% Normalize vertices (flip on Z and lower first tori center to sit at z = 0); 
 FEM.MODEL.nodes(:,3) = FEM.MODEL.nodes(:,3)*(-1)+C(2,2);
+
 %Plot initial FEM
 FEM_plot(FEM)
 
