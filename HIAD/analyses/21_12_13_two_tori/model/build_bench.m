@@ -45,13 +45,13 @@ y1 = C(2,1)*sin(theta);
 z1 = C(2,2)*ones(size(theta))+tor(1).r;
 nodes1 = [x1 y1 z1];
 
-x2 = C(2,1)*cos(theta)+tor(1).r*cos(theta-(pi/4));
-y2 = C(2,1)*sin(theta)+tor(1).r*sin(theta-(pi/4));
+x2 = C(2,1)*cos(theta)+tor(1).r*cos(theta);
+y2 = C(2,1)*sin(theta)+tor(1).r*sin(theta);
 z2 = C(2,2)*ones(size(theta));
 nodes2 = [x2 y2 z2];
 
-x3 = C(2,1)*cos(theta)+tor(1).r*cos(theta+(pi/4));
-y3 = C(2,1)*sin(theta)+tor(1).r*sin(theta+(pi/4));
+x3 = C(2,1)*cos(theta)+tor(1).r*cos(theta+(pi/2));
+y3 = C(2,1)*sin(theta)+tor(1).r*sin(theta+(pi/2));
 z3 = C(2,2)*ones(size(theta));
 nodes3 = [x3 y3 z3];
 

@@ -39,15 +39,11 @@ ts_theta0 = 15*pi/180;
 % load to be applied to testing straps
 load = 10;
 
-<<<<<<< HEAD
 % Location of testing strap end in Radius-Z space
 test_rad = 20;
 test_z = 20;
 
 % END USER INPUT
-
-=======
->>>>>>> a77abde0911b60425495cd9a67f1bdc9b6dc92b6
 
 %% Define Model Inputs
 % Torus centers

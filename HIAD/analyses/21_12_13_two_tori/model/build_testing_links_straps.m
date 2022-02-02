@@ -57,12 +57,12 @@ x5 = tangent(2,1)*cos(theta);
 y5 = tangent(2,1)*sin(theta);
 z5 = tangent(2,2)*ones(size(theta));
 nodes5 = [x5, y5, z5];
-x6 = test_rad*cos(theta)+4*cos(theta+((3*pi)/4));
-y6 = test_rad*sin(theta)+4*sin(theta+((3*pi)/4));
+x6 = test_rad*cos(theta)+4*cos(theta+(pi/2));
+y6 = test_rad*sin(theta)+4*sin(theta+(pi/2));
 z6 = test_z*ones(size(theta));
 nodes6 = [x6 y6 z6];
-x7 = test_rad*cos(theta)+4*cos(theta+((5*pi)/4));
-y7 = test_rad*sin(theta)+4*sin(theta+((5*pi)/4));
+x7 = test_rad*cos(theta)+4*cos(theta+((3*pi)/2));
+y7 = test_rad*sin(theta)+4*sin(theta+((3*pi)/2));
 z7 = test_z*ones(size(theta));
 nodes7 = [x7 y7 z7];
 
