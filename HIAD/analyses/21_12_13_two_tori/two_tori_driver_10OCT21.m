@@ -5,9 +5,13 @@ close all
 %% USER INPUT
 % Define inboard torus major radius
 r_major = 30;
+
 % Minor radius of tori
 r_minor = [10
           10]/2;
+
+% ADD STRAP INTERSECTION LOCATION HERE
+      
 % HIAD angle with vertical
 alpha_cone = 70;
 
@@ -35,22 +39,25 @@ ts_theta0 = 15*pi/180;
 % load to be applied to testing straps
 load = 10;
 
+<<<<<<< HEAD
 % Location of testing strap end in Radius-Z space
 test_rad = 20;
 test_z = 20;
 
 % END USER INPUT
 
+=======
+>>>>>>> a77abde0911b60425495cd9a67f1bdc9b6dc92b6
 
 %% Define Model Inputs
 % Torus centers
 % C = [X Z] locations
 C = two_tori_config(r_major,r_minor,alpha_cone);
 
-% Define torus properties
+% User defined torus properties
 tor = define_tor(C,r_minor);
 
-% Define strap properties
+% User defined strap properties and configuration
 straps = define_straps(C,r_minor,alpha_cone,num_straps);
 
 
