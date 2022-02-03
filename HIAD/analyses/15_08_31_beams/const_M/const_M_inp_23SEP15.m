@@ -1,0 +1,179 @@
+% Pre-process the torus object
+% Andy Young
+% December 31, 2014
+%
+% Preprocess the:
+%   Location of nodes
+%   Element connectivities
+%   Element orientations
+%   Boundary conditions
+%   Force vector
+% 
+% Expanding to include geometric imperfections.  Must still include twist
+% perturbations.
+
+%% Nodes
+beam_nodes = linspace(0,L,n + 1)'; % Location of nodes, xyz (in)
+% % % [beam_nodes,I] = sort([beam_nodes; L - a]);
+% % % [~,I] = max(I);
+% % % Di = I*6 - 4;
+
+beam_nodes = [beam_nodes zeros(length(beam_nodes),2)];
+N = size(beam_nodes,1); % Total nodes
+
+%% Rollers
+% % % beam_nodes = [0 -14 0
+% % %     beam_nodes];
+% % % Di = Di + 6;
+% % % N = N + 1;
+
+%% Orientation
+beam_orientation = beam_nodes;
+beam_orientation(:,2) = beam_orientation(:,2) + 1;
+% % % beam_orientation(1,:) = [-1 -14 0];
+
+%% Connectivities
+beam_connect = [(1:size(beam_nodes,1) - 1)' (2:size(beam_nodes,1))'];
+
+type = 3*ones(size(beam_connect,1),1);
+beam_connect = [beam_connect type];
+% % % beam_connect(1,3) = 2;
+
+%% Boundaries
+% [ux uy uz rx ry rz]
+% 1 = fixed
+% 0 = free
+b_bound = zeros(size(beam_nodes,1),6);
+b_bound(1,[1 2 3 4]) = 1;
+b_bound(end,[2 3]) = 1;
+
+beam_bound = b_bound';
+beam_bound = beam_bound(:);
+
+%% Loading
+% For load control vector
+beam_F_in = zeros(size(beam_nodes,1),6);
+beam_F_in(1,6) = -M;
+beam_F_in(end,6) = M;
+beam_F = beam_F_in';
+beam_F = beam_F(:);
+% % % beam_F(Di) = -react/2; % Load (lb)
+
+
+
+%% Elements
+% Preallocate element structure
+EL(N - 1).el = [];
+EL(N - 1).el_in.nodes_ij = [];
+EL(N - 1).el_in.orient_ij = [];
+EL(N - 1).el_in.connect_ij = [];
+EL(N - 1).el_in0.mat = [];
+EL(N - 1).el_in0.geom = [];
+EL = EL';
+
+% % % % Roller support
+% % % E = 29000000;
+% % % A = pi*1^2;
+% % % I = pi*1^4/4;
+% % % 
+% % % % Define element functions
+% % % EL(1).el = @el2; % Linear, corotational beam
+% % % 
+% % % % Element geometry
+% % % EL(1).el_in.nodes_ij = [beam_nodes(beam_connect(1,1),:)
+% % %     beam_nodes(beam_connect(1,2),:)];
+% % % EL(1).el_in.orient_ij = [beam_orientation(beam_connect(1,1),:)
+% % %     beam_orientation(beam_connect(1,2),:)];
+% % % EL(1).el_in.connect_ij = beam_connect(1,1:2);
+% % % 
+% % % % Special element input
+% % % EL(1).el_in0.mat = [E .3]; % [E nu]
+% % % EL(1).el_in0.geom = [A I I 0 2*I]; % [A Izz Iyy ky J]
+% % % EL(1).el_in0.L0 = sqrt((EL(1).el_in.nodes_ij(2,1) - EL(1).el_in.nodes_ij(1,1))^2 + ...
+% % %         (EL(1).el_in.nodes_ij(2,2) - EL(1).el_in.nodes_ij(1,2))^2 + ...
+% % %         (EL(1).el_in.nodes_ij(2,3) - EL(1).el_in.nodes_ij(1,3))^2);
+
+
+
+
+% Inflatable beam
+% Configuration
+p = p_i; % Internal pressure
+r = r_i; % Shell (minor) radius
+alpha = alpha_i; % Location of cords on shell cross section 
+% alpha = 180;
+
+% Material preprocessor
+beta = beta_i; % Braid angle
+props12 = props12_i; % Shell properties
+propsB = [54.8 19]'; % Bladder properties [E nu]' (lb/in)
+propsB(3) = propsB(1)/(2*propsB(2)) - 1; % Bladder Poisson ratio
+
+t = .1/3; % Lamina thickness
+
+% Fiber (lamina) properties
+E1 = props12(1)/t; % psi
+E2 = props12(2)/t;
+G12 = props12(3)/t;
+nu12 = props12(4);
+
+% Bladder properties
+E_b = propsB(1)/t; % psi
+G_b = propsB(2)/t;
+nu_b = propsB(3);
+
+[A,~] = get_A([E1 E1 E_b]', [E2 E2 E_b]', [nu12 nu12 nu_b]', [G12 G12 G_b]', [beta -beta 0]', [t t t]');
+
+% Laminate properties
+ELong = (A(1,1) - A(1,2)^2/A(2,2))/(3*t); % psi
+EHoop = (A(2,2) - A(1,2)^2/A(1,1))/(3*t); % psi
+GLH = A(3,3)/(3*t); % psi
+nuHL = A(1,2)/A(1,1);
+
+% Cord force/strain lookup table
+axial_table = axial_table_i;
+d = load(axial_table);
+Fc = p*pi*r^2/length(alpha)*(1 - 2*cot(beta*pi/180)^2); % Force in one cord after inflation (lb)
+eps0 = interp1(d(:,1),d(:,2),Fc); % Initial cord strain
+
+load_point = [0 0];
+unload_point = [0 0];
+
+% Loop through elements and load relevant data
+for i = 1:N - 1
+    % Define element functions
+    EL(i).el = @el3; % Pneumatic, corotational beam
+    
+    % Element geometry
+    EL(i).el_in.nodes_ij = [beam_nodes(beam_connect(i,1),:)
+        beam_nodes(beam_connect(i,2),:)];
+    EL(i).el_in.orient_ij = [beam_orientation(beam_connect(i,1),:)
+        beam_orientation(beam_connect(i,2),:)];
+    EL(i).el_in.connect_ij = beam_connect(i,1:2);
+    
+    % Special element input
+    EL(i).el_in0.p = p;
+    EL(i).el_in0.r = r;
+    EL(i).el_in0.alpha = alpha;
+    
+    EL(i).el_in0.eps = eps0*ones(size(alpha,1),2);
+    EL(i).el_in0.f = Fc*ones(size(alpha,1),2);
+    
+    % Cord input
+    for j = 1:2 % Loop through each node
+        for k = 1:length(alpha) % Loop through each cord
+            EL(i).el_in0.nodes(j).cords(k).axial = d;
+            EL(i).el_in0.nodes(j).cords(k).load_point = load_point;
+            EL(i).el_in0.nodes(j).cords(k).unload_point = unload_point;
+            EL(i).el_in0.nodes(j).cords(k).eps_rate = 1;
+        end
+    end
+    
+    EL(i).el_in0.propsLH = [ELong EHoop GLH nuHL t]'; % Shell properties
+    EL(i).el_in0.EI = [0 0 0]; % Tangent EI
+    EL(i).el_in0.y_bar = [0 0]'; % Location of NA
+    
+    EL(i).el_in0.D0 = [0 0 0 0 0 0]';
+    EL(i).el_in0.P0 = [0 0 0 0 0 0]';
+end
+
