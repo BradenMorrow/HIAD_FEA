@@ -1,0 +1,27 @@
+Date and Time: 11/07/2016 15:04
+Filename: J:\\HIAD Tests\2016-11-07_15.04.26_T3AP-5_Buckling_15psi_1\2016-11-07_15.04.26_T3AP-5_Buckling_15psi_1.csv
+Specimen: T3AP-5
+Type: Buckling
+People running test: Daniel Whitney
+Temperture: 72.05
+Humidity: 30
+--
+
+Integration Length for I: 80
+P_Slope, I_Slope, D_Slope
+-0.00166667, 0.0025, 0.000125
+
+Type, Initial, Final, Time, P, I, D
+1, 10, 10, 10, 0.0225, 0, 0
+1, 10, 10, 10, 0.015, 0.005, 0
+1, 10, 10, 25, 0.0203558, 0.00208759, 0.000170923
+2, 0, 1, 60, 1.154, 0.1773, 0.0015
+2, -99, -99, 120, 1.154, 0.1773, 0.0015
+
+
+Actuators in Use:
+ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+
+Act# 1,Act# 2,Act# 3,Act# 4,Act# 5,Act# 6,Act# 7,Act# 8,Act# 9,Act# 10,Act# 11,Act# 12,Act# 13,Act# 14,Act# 15,Act# 16,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ 4,4,-4,-4,4,4,-4,-4,-4,-4,4,4,-4,-4,4,4

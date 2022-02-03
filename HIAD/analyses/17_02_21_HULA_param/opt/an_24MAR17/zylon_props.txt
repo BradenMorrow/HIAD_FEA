@@ -1,0 +1,17 @@
+For the zylon laminate my inputs were:
+beta = 69 deg
+pressure = 12 psi
+EL = 90 lb/in
+GLH = 4000 lb/in
+diameter = 9.6 inches
+Ebladder = 54.8 lb/in
+Gbladder = 19 lb/in
+
+I obtained the following laminate properties:
+EL = 90 lb/in
+EH = 3600 lb/in
+GLH = 4000 lb/in
+nuLH = 0.147
+
+For reference I obtained an effective fiber stiffness of 17,660 lb/in.
+
