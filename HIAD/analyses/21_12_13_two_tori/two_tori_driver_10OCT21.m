@@ -9,8 +9,6 @@ r_major = 30;
 % Minor radius of tori
 r_minor = [10
           10]/2;
-
-% ADD STRAP INTERSECTION LOCATION HERE
       
 % HIAD angle with vertical
 alpha_cone = 70;
@@ -22,7 +20,7 @@ min_nodes = 10;
 num_straps = 6;
 
 % number of test benches located radially around the tori
-num_bench = 4;
+num_bench = 2;
 
 % Half of size of bench (half of bench length, offset on either side of center)
 bench_length = 2;
@@ -31,7 +29,7 @@ bench_length = 2;
 b_theta0 = 0*pi/180;
 
 % number of test straps located radially around the tori
-num_teststraps = 2;
+num_teststraps = 4;
 
 % Location of first strap
 ts_theta0 = 15*pi/180;
@@ -41,35 +39,31 @@ load = 10;
 
 % Location of testing strap end in Radius-Z space
 test_rad = 20;
-test_z = 20;
+test_z = 5;
 
 % END USER INPUT
 
 %% Define Model Inputs
 % Torus centers
 % C = [X Z] locations
-C = two_tori_config(r_major,r_minor,alpha_cone);
+% C = two_tori_config(r_major,r_minor,alpha_cone);
 
 % User defined torus properties
-tor = define_tor(C,r_minor);
+tor = define_tor(r_minor);
 
 % User defined strap properties and configuration
-straps = define_straps(C,r_minor,alpha_cone,num_straps);
-
+straps = define_straps(r_minor,alpha_cone,num_straps);
 
 %% BUILD MODEL
 % Assemble torus elements
-[FEM, theta, th_bench, th_tst] = build_tor(C,tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length);
+[FEM, theta, th_bench, th_tst, C] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length);
 
 % Assemble interaction elements
 pre_str = zeros(size(tor,1),1); % Interaction element prestrain
 [FEM,K_shear] = build_int(FEM,theta,C,tor,pre_str);
 
 % Assemble link and strap elements
-[FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,C,tor,straps);
-
-% Modeling controls and plot
-FEM.PLOT = plot_controls;
+% [FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,C,tor,straps);
 
 % Assemble testing bench elements
 [FEM] = build_bench(FEM,C,tor,theta,th_bench, K_shear);
@@ -81,6 +75,7 @@ FEM.PLOT = plot_controls;
 FEM.MODEL.nodes(:,3) = FEM.MODEL.nodes(:,3)*(-1)+C(2,2);
 
 %Plot initial FEM
+FEM.PLOT = plot_controls;
 FEM_plot(FEM)
 
 % Initialize cord force arrays

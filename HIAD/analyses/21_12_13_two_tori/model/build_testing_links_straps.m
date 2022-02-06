@@ -32,39 +32,76 @@ tori_nodes = tori_nodes';
 
 
 %% NODES
-% % % Must modify code for configuration other than a perfect
-% % %  circle
-% Link Element Node Locations
-x1 = C(1,1)*cos(theta);
-y1 = C(1,1)*sin(theta);
-z1 = C(1,2)*ones(size(theta))-tor(1).r;
-nodes1 = [x1 y1 z1];
-x2 = C(2,1)*cos(theta);
-y2 = C(2,1)*sin(theta);
-z2 = C(2,2)*ones(size(theta))+tor(1).r;
-% Strap Element Node Locations
-nodes2 = [x2 y2 z2];
-x3 = test_rad*cos(theta);
-y3 = test_rad*sin(theta);
-z3 = test_z*ones(size(theta));
-nodes3 = [x3 y3 z3];
-tangent  = circle_tan([C(1,:) C(2,:)], [r(1) r(2)], 0); % Find tangent line beetween tori
-x4 = tangent(1,1)*cos(theta);
-y4 = tangent(1,1)*sin(theta);
-z4 = tangent(1,2)*ones(size(theta));
-nodes4 = [x4, y4, z4];
-x5 = tangent(2,1)*cos(theta);
-y5 = tangent(2,1)*sin(theta);
-z5 = tangent(2,2)*ones(size(theta));
-nodes5 = [x5, y5, z5];
-x6 = test_rad*cos(theta)+4*cos(theta+(pi/2));
-y6 = test_rad*sin(theta)+4*sin(theta+(pi/2));
-z6 = test_z*ones(size(theta));
-nodes6 = [x6 y6 z6];
-x7 = test_rad*cos(theta)+4*cos(theta+((3*pi)/2));
-y7 = test_rad*sin(theta)+4*sin(theta+((3*pi)/2));
-z7 = test_z*ones(size(theta));
-nodes7 = [x7 y7 z7];
+% % % % Must modify code for configuration other than a perfect
+% % % %  circle
+% % Link Element Node Locations
+% x1 = C(1,1)*cos(theta);
+% y1 = C(1,1)*sin(theta);
+% z1 = C(1,2)*ones(size(theta))-tor(1).r;
+% nodes1 = [x1 y1 z1];
+% x2 = C(2,1)*cos(theta);
+% y2 = C(2,1)*sin(theta);
+% z2 = C(2,2)*ones(size(theta))+tor(1).r;
+% % Strap Element Node Locations
+% nodes2 = [x2 y2 z2];
+% x3 = test_rad*cos(theta);
+% y3 = test_rad*sin(theta);
+% z3 = test_z*ones(size(theta));
+% nodes3 = [x3 y3 z3];
+% tangent  = circle_tan([C(1,:) C(2,:)], [r(1) r(2)], 0); % Find tangent line beetween tori
+% x4 = tangent(1,1)*cos(theta);
+% y4 = tangent(1,1)*sin(theta);
+% z4 = tangent(1,2)*ones(size(theta));
+% nodes4 = [x4, y4, z4];
+% x5 = tangent(2,1)*cos(theta);
+% y5 = tangent(2,1)*sin(theta);
+% z5 = tangent(2,2)*ones(size(theta));
+% nodes5 = [x5, y5, z5];
+% x6 = test_rad*cos(theta)+4*cos(theta+(pi/2));
+% y6 = test_rad*sin(theta)+4*sin(theta+(pi/2));
+% z6 = test_z*ones(size(theta));
+% nodes6 = [x6 y6 z6];
+% x7 = test_rad*cos(theta)+4*cos(theta+((3*pi)/2));
+% y7 = test_rad*sin(theta)+4*sin(theta+((3*pi)/2));
+% z7 = test_z*ones(size(theta));
+% nodes7 = [x7 y7 z7];
+% 
+% nodes = [nodes1; nodes2; nodes3; nodes4; nodes5; nodes6; nodes7];
+
+for i = 1:size(tori_nodes)
+    x1 = FEM.MODEL.nodes(tori_nodes(i),1);
+    y1 = FEM.MODEL.nodes(tori_nodes(i),2);
+    z1 = FEM.MODEL.nodes(tori_nodes(i),3)-tor(1).r;
+    nodes1(i,:) = [x1 y1 z1];
+    x2 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1);
+    y2 = FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),2);
+    z2 = FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),3)+tor(1).r;
+    % Strap Element Node Locations
+    nodes2(i,:) = [x2 y2 z2];
+    x3 = test_rad*cos(theta(i));
+    y3 = test_rad*sin(theta(i));
+    z3 = test_z;
+    nodes3(i,:) = [x3 y3 z3];
+    point1 = [sqrt(FEM.MODEL.nodes(tori_nodes(i),1)^2+FEM.MODEL.nodes(tori_nodes(i),2)^2), FEM.MODEL.nodes(tori_nodes(i),3)];
+    point2 = [sqrt(FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),1)^2+FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),2)^2), FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),3)];
+    tangent  = circle_tan([[point1(1), point1(2)], [point2(1), point2(2)]], [r(1) r(2)], 0); % Find tangent line beetween tori
+    x4 = abs(tangent(1,1))*cos(theta(i));
+    y4 = abs(tangent(1,1))*sin(theta(i));
+    z4 = tangent(1,2);
+    nodes4(i,:) = [x4, y4, z4];
+    x5 = abs(tangent(2,1))*cos(theta(i));
+    y5 = abs(tangent(2,1))*sin(theta(i));
+    z5 = tangent(2,2);
+    nodes5(i,:) = [x5, y5, z5];
+    x6 = test_rad*cos(theta(i))+4*cos(theta(i)+(pi/2));
+    y6 = test_rad*sin(theta(i))+4*sin(theta(i)+(pi/2));
+    z6 = test_z;
+    nodes6(i,:) = [x6 y6 z6];
+    x7 = test_rad*cos(theta(i))+4*cos(theta(i)+((3*pi)/2));
+    y7 = test_rad*sin(theta(i))+4*sin(theta(i)+((3*pi)/2));
+    z7 = test_z;
+    nodes7(i,:) = [x7 y7 z7];
+end
 
 nodes = [nodes1; nodes2; nodes3; nodes4; nodes5; nodes6; nodes7];
 

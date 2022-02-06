@@ -40,23 +40,40 @@ J = 1;
 %% NODES
 % % % Must modify code for configuration other than a perfect
 % % %  circle
-x1 = C(2,1)*cos(theta);
-y1 = C(2,1)*sin(theta);
-z1 = C(2,2)*ones(size(theta))+tor(1).r;
-nodes1 = [x1 y1 z1];
-
-x2 = C(2,1)*cos(theta)+tor(1).r*cos(theta);
-y2 = C(2,1)*sin(theta)+tor(1).r*sin(theta);
-z2 = C(2,2)*ones(size(theta));
-nodes2 = [x2 y2 z2];
-
-x3 = C(2,1)*cos(theta)+tor(1).r*cos(theta+(pi/2));
-y3 = C(2,1)*sin(theta)+tor(1).r*sin(theta+(pi/2));
-z3 = C(2,2)*ones(size(theta));
-nodes3 = [x3 y3 z3];
+% x1 = C(2,1)*cos(theta);
+% y1 = C(2,1)*sin(theta);
+% z1 = C(2,2)*ones(size(theta))+tor(1).r;
+% nodes1 = [x1 y1 z1];
+% 
+% x2 = C(2,1)*cos(theta)+tor(1).r*cos(theta);
+% y2 = C(2,1)*sin(theta)+tor(1).r*sin(theta);
+% z2 = C(2,2)*ones(size(theta));
+% nodes2 = [x2 y2 z2];
+% 
+% x3 = C(2,1)*cos(theta)+tor(1).r*cos(theta+(pi/2));
+% y3 = C(2,1)*sin(theta)+tor(1).r*sin(theta+(pi/2));
+% z3 = C(2,2)*ones(size(theta));
+% nodes3 = [x3 y3 z3];
+% 
+% nodes = [nodes1; nodes2; nodes3];
+for i = 1:size(tori_nodes)
+    x1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1);
+    y1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),2);
+    z1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),3)+tor(1).r;
+    nodes1(i,:) = [x1 y1 z1];
+    
+    x2 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1)+tor(1).r*cos(theta(i));
+    y2 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),2)+tor(1).r*sin(theta(i));
+    z2 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),3);
+    nodes2(i,:) = [x2 y2 z2];
+    
+    x3 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1)+tor(1).r*cos(theta(i)+(pi/2));
+    y3 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),2)+tor(1).r*sin(theta(i)+(pi/2));
+    z3 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),3);
+    nodes3(i,:) = [x3 y3 z3];
+end
 
 nodes = [nodes1; nodes2; nodes3];
-
 
 %% ORIENTATION
 orientation = zeros(size(nodes,1),3);
