@@ -1,4 +1,4 @@
-function [FEM] = build_bench(FEM,C,tor,tori_theta,theta1,K_shear)
+function [FEM] = build_bench(FEM,tor,tori_theta,theta1,K_shear)
 
 % Combine theta locations
 theta1(theta1 >= 2*pi) = theta1(theta1 >= 2*pi) - 2*pi;
@@ -59,7 +59,7 @@ J = 1;
 for i = 1:size(tori_nodes)
     x1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1);
     y1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),2);
-    z1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),3)+tor(1).r;
+    z1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),3)-tor(1).r;
     nodes1(i,:) = [x1 y1 z1];
     
     x2 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1)+tor(1).r*cos(theta(i));

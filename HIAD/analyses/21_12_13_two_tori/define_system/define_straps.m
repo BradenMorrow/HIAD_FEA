@@ -1,9 +1,7 @@
-function [straps] = define_straps(r_minor,alpha_cone,num_straps)
+function [straps] = define_straps(r_minor,num_straps)
 % Strap sets input deck
 % User must create a strap set structure for each strap set.  Includes 
 % information used to define the properties of the straps.
-
-alpha = 90 - alpha_cone;
 
 num_strap_sets = 2;
 

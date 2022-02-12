@@ -1,4 +1,4 @@
-function [FEM,rebound,theta] = build_testing_links_straps(FEM,C,tor,straps,load,tori_theta,theta1,test_rad,test_z)
+function [FEM,rebound,theta] = build_testing_links_straps(FEM,tor,straps,load,tori_theta,theta1,test_rad,test_z)
 %% GENERAL
 % Theta tolerance
 tol = 1e-12;
@@ -71,11 +71,11 @@ tori_nodes = tori_nodes';
 for i = 1:size(tori_nodes)
     x1 = FEM.MODEL.nodes(tori_nodes(i),1);
     y1 = FEM.MODEL.nodes(tori_nodes(i),2);
-    z1 = FEM.MODEL.nodes(tori_nodes(i),3)-tor(1).r;
+    z1 = FEM.MODEL.nodes(tori_nodes(i),3)+tor(1).r;
     nodes1(i,:) = [x1 y1 z1];
     x2 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1);
     y2 = FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),2);
-    z2 = FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),3)+tor(1).r;
+    z2 = FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),3)-tor(1).r;
     % Strap Element Node Locations
     nodes2(i,:) = [x2 y2 z2];
     x3 = test_rad*cos(theta(i));
@@ -84,7 +84,7 @@ for i = 1:size(tori_nodes)
     nodes3(i,:) = [x3 y3 z3];
     point1 = [sqrt(FEM.MODEL.nodes(tori_nodes(i),1)^2+FEM.MODEL.nodes(tori_nodes(i),2)^2), FEM.MODEL.nodes(tori_nodes(i),3)];
     point2 = [sqrt(FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),1)^2+FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),2)^2), FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),3)];
-    tangent  = circle_tan([[point1(1), point1(2)], [point2(1), point2(2)]], [r(1) r(2)], 0); % Find tangent line beetween tori
+    tangent  = circle_tan([[point1(1), point1(2)], [point2(1), point2(2)]], [r(1) r(2)], 1); % Find tangent line beetween tori
     x4 = abs(tangent(1,1))*cos(theta(i));
     y4 = abs(tangent(1,1))*sin(theta(i));
     z4 = tangent(1,2);
