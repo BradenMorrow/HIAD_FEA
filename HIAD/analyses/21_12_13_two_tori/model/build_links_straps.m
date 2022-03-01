@@ -1,6 +1,6 @@
 function [FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,tor,straps)
 %% Preprocess link geometry
-
+straps = straps(1:2);
 
 %% GENERAL
 % Theta tolerance
@@ -16,44 +16,7 @@ J = pi*R^4/2;
 
 % Instantiate
 r = [tor.r]'; % Radius of tori
-c_link = zeros(size(straps,1),4); % Preallocate
-
-
-
-%% Find link and strap nodal locations
-% % for i = 1:size(straps,1)
-% %     %% Link Node Locations
-% %     con = straps(i).con;
-% %     
-% %     if con(1) == 0 && con(2) == 0 % Node to node
-% %         c_link(i,[1 2]) = straps(i).node1; % Set nodal location
-% %         c_link(i,[3 4]) = straps(i).node2; % Set nodal location
-% %         
-% %     elseif con(1)~= 0 && con(2) ~= 0 % Torus to torus
-% %         tangent  = circle_tan([C(con(1),:) C(con(2),:)], [r(con(1)) r(con(2))], straps(i).side); % Find tangent line beetween tori
-% %         c_link(i,[1 2]) = tangent(1,:); % Set the left node to the external tangent on the left side
-% %         c_link(i,[3 4]) = tangent(2,:); % Set the right node to the external tangent on the right side
-% %     
-% %     elseif con(1) == 0 && con(2) ~= 0 % Node to torus
-% %         c_link(i,[1 2]) = straps(i).node1; % Set nodal location
-% %         tangent  = circle_tan([straps(i).node1 C(con(2),:)], [0 r(con(2))], straps(i).side); % Find tangent line beetween tori
-% %         c_link(i, [3 4]) = tangent(2,:); % Set the right node to the external tangent on the right side
-% %     
-% %     elseif con(1)~= 0 && con(2) == 0 % Torus to node
-% %         tangent  = circle_tan([C(con(1),:) straps(i).node2], [r(con(1)) 0], straps(i).side); % Find tangent line beetween tori
-% %         c_link(i,[1 2]) = tangent(1,:); % Set the left node to the external tangent on the left side
-% %         c_link(i,[3 4]) = straps(i).node2; % Set nodal location
-% %     end
-% % end
-
-
-% % plotting = 1;
-% % if plotting == 1
-% %     figure(100)
-% %     hold on
-% %     plot(c_link(:,1),c_link(:,2),'ro')
-% %     plot(c_link(:,3),c_link(:,4),'ro')
-% % end
+c_link = zeros(size(straps,1)-1,4); % Preallocate
 
 %% Create nodes
 % Preallocate nodal matrix
@@ -161,9 +124,6 @@ strap_type = zeros(max(num_straps),size(straps,1));
 nodes_ind = (1:size(nodes,1))';
 
 for i = 1:size(straps,1)
-    if i == 17
-        a = 1;
-    end
     
     % First strap node
     con1 = nodes_ind(nodes(:,6) == i & nodes(:,7) == 1);

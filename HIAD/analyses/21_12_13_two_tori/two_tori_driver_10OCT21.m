@@ -2,21 +2,24 @@ clear
 close all
 
 %% USER INPUT
+% Define file paths to tori4 and tori5
+files = ["tori1.mat", "tori2.mat"];
+
 % Define inboard torus major radius to estimate bench node spacing
-r_major = 30;
+r_major = 50;
 
 % Minor radius of tori
 r_minor = [10
           10]/2;
 
 % Minimum number of torus nodes
-min_nodes = 10;
+min_nodes = 200;
 
 % number of loop straps in strap sets
-num_straps = 6;
+num_straps = 16;
 
 % number of test benches located radially around the tori
-num_bench = 2;
+num_bench = 4;
 
 % Half of size of bench (half of bench length, offset on either side of center)
 bench_length = 2;
@@ -25,10 +28,10 @@ bench_length = 2;
 b_theta0 = 0*pi/180;
 
 % number of test straps located radially around the tori
-num_teststraps = 4;
+num_teststraps = 16;
 
 % Location of first strap
-ts_theta0 = 15*pi/180;
+ts_theta0 = 0*pi/180;
 
 % load to be applied to testing straps
 load = 10;
@@ -37,10 +40,11 @@ load = 10;
 test_rad = 20;
 test_z = 5;
 
-% END USER INPUT
+%Location of cable end in Radius-Z space
+cable_rad = 10;
+cable_z = 5;
 
 %% Define Model Inputs
-% Torus centers
 
 % User defined torus properties
 tor = define_tor(r_minor);
@@ -48,9 +52,11 @@ tor = define_tor(r_minor);
 % User defined strap properties and configuration
 straps = define_straps(r_minor,num_straps);
 
+% END USER INPUT
+
 %% BUILD MODEL
 % Assemble torus elements
-[FEM, theta, th_bench, th_tst, C] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length);
+[FEM, theta, th_bench, th_tst, C] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length,files);
 
 % Assemble interaction elements
 pre_str = zeros(size(tor,1),1); % Interaction element prestrain
@@ -63,7 +69,7 @@ pre_str = zeros(size(tor,1),1); % Interaction element prestrain
 [FEM] = build_bench(FEM,tor,theta,th_bench, K_shear);
 
 % Assemble testing link and strap elements
-[FEM, rebound, test_theta] = build_testing_links_straps(FEM,tor,straps,load,theta,th_tst,test_rad,test_z);
+[FEM, rebound, test_theta] = build_testing_links_straps(FEM,tor,straps,load,theta,th_tst,test_rad,test_z,cable_rad,cable_z);
 
 %Plot initial FEM
 FEM.PLOT = plot_controls;

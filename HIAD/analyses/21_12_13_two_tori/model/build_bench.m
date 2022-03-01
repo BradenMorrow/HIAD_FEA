@@ -35,27 +35,10 @@ A = K_ax/E;
 Izz = K_shear*r1^3/(3*E);
 Iyy = pi/4*2^4;
 J = 1;
+[axial,axial_k] = strap_response(100,5.6941e+06,0,0.0001,0.0001);
 
 
 %% NODES
-% % % Must modify code for configuration other than a perfect
-% % %  circle
-% x1 = C(2,1)*cos(theta);
-% y1 = C(2,1)*sin(theta);
-% z1 = C(2,2)*ones(size(theta))+tor(1).r;
-% nodes1 = [x1 y1 z1];
-% 
-% x2 = C(2,1)*cos(theta)+tor(1).r*cos(theta);
-% y2 = C(2,1)*sin(theta)+tor(1).r*sin(theta);
-% z2 = C(2,2)*ones(size(theta));
-% nodes2 = [x2 y2 z2];
-% 
-% x3 = C(2,1)*cos(theta)+tor(1).r*cos(theta+(pi/2));
-% y3 = C(2,1)*sin(theta)+tor(1).r*sin(theta+(pi/2));
-% z3 = C(2,2)*ones(size(theta));
-% nodes3 = [x3 y3 z3];
-% 
-% nodes = [nodes1; nodes2; nodes3];
 for i = 1:size(tori_nodes)
     x1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1);
     y1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),2);
@@ -116,7 +99,8 @@ for j = 1:size(connect,1)
     EL(j).el_in0.break = 0;
     EL(j).el_in0.mat = [E .3]; % [E nu]
     EL(j).el_in0.geom = [A Izz Iyy 0 J]; % [A Izz Iyy ky J]
-    
+    EL(j).el_in0.axial = axial;
+    EL(j).el_in0.axial_k = axial_k;
     % Element prestrain
     EL(j).el_in0.eps0 = 0;
 end

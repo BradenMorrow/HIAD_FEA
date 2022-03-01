@@ -1,4 +1,4 @@
-function [FEM, theta, th_bench, th_tst, C] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length)
+function [FEM, theta, th_bench, th_tst, C] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length,files)
 
 %% THETA
 % Theta tolerance
@@ -68,7 +68,6 @@ EL(size(theta,1),1).el_in = [];
 EL(size(theta,1),1).el_in0.mat = [];
 EL(size(theta,1),1).el_in0.geom = [];
 
-files = ["C:\Users\bmorr\Desktop\HIAD_FEA\HIAD\analyses\21_12_13_two_tori\tori1.mat", "C:\Users\bmorr\Desktop\HIAD_FEA\HIAD\analyses\21_12_13_two_tori\tori2.mat"];
 %% Create torus models
 for i = 1:size(tor,1)
     %% Nodes
