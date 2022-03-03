@@ -57,7 +57,7 @@ w = 2; % Strap width (in)
 straps(S).geom = [t*w w*t^3/12 w^3*t/12 0 .312*w*t^3]; % Element geometry, local z perpendicular to global theta [A Izz Iyy ky J]
 straps(S).eps0 = 0; % Strap prestrain
 
-straps(S).theta0 = 0; % Location of first strap
+straps(S).theta0 = 11.25*(pi/180); % Location of first strap
 straps(S).num_straps = num_straps; % Number of straps around HIAD
 straps(S).theta_sweep = 0; % Skew strap, angle swept by strap, measured from connectivity 1 to 2, CCW+
 
@@ -94,7 +94,7 @@ w = 2; % Strap width (in)
 straps(S).geom = [t*w w*t^3/12 w^3*t/12 0 .312*w*t^3]; % Element geometry, local z perpendicular to global theta [A Izz Iyy ky J]
 straps(S).eps0 = 0; % Strap prestrain
 
-straps(S).theta0 = 0; % Location of first strap
+straps(S).theta0 = 11.25*(pi/180); % Location of first strap
 straps(S).num_straps = num_straps; % Number of straps around HIAD
 straps(S).theta_sweep = 0; % Skew strap, angle swept by strap, measured from connectivity 1 to 2, CCW+
 

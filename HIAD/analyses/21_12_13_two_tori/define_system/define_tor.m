@@ -27,9 +27,9 @@ tor(N,1).state_it = []; % Iterative or non-iterative state determination procedu
 %% T1
 T = 1; % Torus number
 tor(T).r = r(T); % Torus minor radius (in)
-tor(T).p = 12; % Internal inflation pressure (psi)
+tor(T).p = 10; % Internal inflation pressure (psi) % 10 15 20 cases
 tor(T).alpha = [210 330]'; % Location of cords (deg, CW, from top of torus, +z)
-tor(T).beta = 71; % 69; % Braid angle (deg)
+tor(T).beta = 71; % Braid angle (deg)
 ELong = 90; % 0; % Shell longitudinal stiffness (lbf/in)
 tor(T).ELong = get_beam_EL(tor(T).beta,tor(T).p,tor(T).r,ELong); % Gross axial stiffness (lb/in)
 tor(T).GLH = 4000; % Shell shear stiffness (lbf/in)
@@ -48,9 +48,9 @@ tor(T).K_shear = .72*pi*tor(T).p*1; % lb/in/in
 %% T2
 T = T + 1; % Torus number
 tor(T).r = r(T); % Torus minor radius (in)
-tor(T).p = 12; % Internal inflation pressure (psi)
+tor(T).p = 10; % Internal inflation pressure (psi) % 10 15 20 cases
 tor(T).alpha = [210 330]'; % Location of cords (deg, CW, from top of torus, +z)
-tor(T).beta = 71; % 69; % Braid angle (deg)
+tor(T).beta = 71; % Braid angle (deg)
 ELong = 90; % Shell longitudinal stiffness (lbf/in)
 tor(T).ELong = get_beam_EL(tor(T).beta,tor(T).p,tor(T).r,ELong); % Gross axial stiffness (lb/in)
 tor(T).GLH = 4000; % Shell shear stiffness (lbf/in)

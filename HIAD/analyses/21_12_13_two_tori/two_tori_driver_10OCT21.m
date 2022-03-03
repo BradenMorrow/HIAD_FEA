@@ -6,11 +6,11 @@ close all
 files = ["tori1.mat", "tori2.mat"];
 
 % Define inboard torus major radius to estimate bench node spacing
-r_major = 50;
+r_major = 79;
 
 % Minor radius of tori
-r_minor = [10
-          10]/2;
+r_minor = [6.7
+    6.7];
 
 % Minimum number of torus nodes
 min_nodes = 200;
@@ -22,7 +22,7 @@ num_straps = 16;
 num_bench = 4;
 
 % Half of size of bench (half of bench length, offset on either side of center)
-bench_length = 2;
+bench_length = 12;
 
 % Location of first bench
 b_theta0 = 0*pi/180;
@@ -34,7 +34,7 @@ num_teststraps = 16;
 ts_theta0 = 0*pi/180;
 
 % load to be applied to testing straps
-load = 10;
+load = 30;
 
 % Location of testing strap end in Radius-Z space
 test_rad = 20;
