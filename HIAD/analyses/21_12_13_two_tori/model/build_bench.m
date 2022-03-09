@@ -24,13 +24,13 @@ EL(size(theta,1)).el_in0.geom = [];
 EL = EL';
 
 
-%% Create interaction elements
+%% Create Bench Elements
 r1 = tor(1).r;
 
 K_ax = 1; % Distribute to each node (assumes uniform nodal distribution) lbf/strain
 
 % Determine geometric properties
-E = 10e6; % Arbitralily fixed
+E = 100; % Arbitralily fixed
 A = K_ax/E;
 Izz = K_shear*r1^3/(3*E);
 Iyy = pi/4*2^4;
@@ -89,7 +89,23 @@ FEM.MODEL.U_pt = [FEM.MODEL.U_pt; U];
 
 
 %% ELEMENTS
-for j = 1:size(connect,1)
+for j = 1:size(connect_i,1)
+    EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
+    
+    % Define element functions
+    EL(j).el = 'el4'; % Linear, corotational beam
+    
+    % Special element input
+    EL(j).el_in0.break = 0;
+    EL(j).el_in0.mat = [E .3]; % [E nu]
+    EL(j).el_in0.geom = [A Izz Iyy 0 J]; % [A Izz Iyy ky J]
+    EL(j).el_in0.axial = axial;
+    EL(j).el_in0.axial_k = axial_k;
+    % Element prestrain
+    EL(j).el_in0.eps0 = 0;
+end
+
+for j = size(connect_i,1)+1:size(connect_all,1)
     EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
     
     % Define element functions
@@ -99,8 +115,7 @@ for j = 1:size(connect,1)
     EL(j).el_in0.break = 0;
     EL(j).el_in0.mat = [E .3]; % [E nu]
     EL(j).el_in0.geom = [A Izz Iyy 0 J]; % [A Izz Iyy ky J]
-    EL(j).el_in0.axial = axial;
-    EL(j).el_in0.axial_k = axial_k;
+    
     % Element prestrain
     EL(j).el_in0.eps0 = 0;
 end

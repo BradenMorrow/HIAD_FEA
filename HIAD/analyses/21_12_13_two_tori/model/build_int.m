@@ -44,10 +44,6 @@ Izz = K_shear*L0^3/(3*E);
 Iyy = pi/4*2^4;
 J = 1;
 
-
-%% NODES
-nodes = [];
-
     
 %% ORIENTATION
 orientation = zeros(size(theta,1),3);
@@ -55,7 +51,6 @@ orientation(:,3) = 1e6;
 
 
 %% CONNECTIVITIES
-N = size(theta,1)*(2);
 connect_i = [(1:size(theta,1))' (1:size(theta,1))' + size(theta,1)];
 
 connect = [connect_i 1*ones(size(connect_i,1),1)];

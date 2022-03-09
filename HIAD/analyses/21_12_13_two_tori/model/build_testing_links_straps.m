@@ -1,7 +1,10 @@
-function [FEM,rebound,theta] = build_testing_links_straps(FEM,tor,straps,load,tori_theta,theta1,test_rad,test_z,cable_rad,cable_z)
+function [FEM,rebound,theta] = build_testing_links_straps(FEM,tor,straps,total_load,tori_theta,theta1,cable_rad,C)
 %% GENERAL
-% Theta tolerance
-tol = 1e-12;
+center(1) = (C(1,2) + C(2,2))/2; % Contact between tori z
+center(2) = (C(1,1) + C(2,1))/2; % Contact between tori r
+test_z = center(1)+2.84;
+test_rad = center(2)-17.6;
+cable_z = test_z;
 
 % Properties for link elements
 E = 10e6;
@@ -135,7 +138,7 @@ end
 
 % Straps
 strap_type = 3;
-for i = size(con_link,1):size(con_link,1)+size(strap_link,1)
+for i = size(con_link,1)+1:size(con_link,1)+size(strap_link,1)
     EL(i).el_in0 = instantiate_EL; % Instatiate all element variables
     
     % Define element functions
@@ -151,7 +154,7 @@ for i = size(con_link,1):size(con_link,1)+size(strap_link,1)
 end
 
 % Bench
-for j = size(con_link,1)+size(strap_link,1):size(con_link,1)+size(strap_link,1)+size(bound_link,1)
+for j = size(con_link,1)+size(strap_link,1)+1:size(con_link,1)+size(strap_link,1)+size(bound_link,1)
     EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
     
     % Define element functions
@@ -167,7 +170,7 @@ for j = size(con_link,1)+size(strap_link,1):size(con_link,1)+size(strap_link,1)+
 end
 
 % Cable
-for j = size(con_link,1)+size(strap_link,1)+size(bound_link,1):size(con_link,1)+size(strap_link,1)+size(bound_link,1)+size(cable_link)
+for j = size(con_link,1)+size(strap_link,1)+size(bound_link,1)+1:size(con_link,1)+size(strap_link,1)+size(bound_link,1)+size(cable_link)
     EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
     
     % Define element functions
@@ -191,8 +194,9 @@ FEM.MODEL.orientation(:,3) = 1e6;
 
 %% Boundary 
 b1 = zeros(size(theta,1)*5,6);
-b2 = ones(size(theta,1)*3,6);
-b = [b1; b2;];
+b2 = ones(size(theta,1)*2,6);
+b3 = zeros(size(theta,1),6);
+b = [b1; b2; b3];
 b = b';
 bound = b(:);
 rebound(1,:) = [(size(FEM.MODEL.B,1)/6 + size(theta,1)*4) (size(FEM.MODEL.B,1)/6 + size(theta,1)*6)];
@@ -200,7 +204,7 @@ FEM.MODEL.B = [FEM.MODEL.B; bound];
 
 %% Loading
 f1 = zeros(size(theta,1)*7,6);
-f2 = (-load)*[cos(theta) sin(theta)];
+f2 = (-total_load)*[cos(theta) sin(theta)];
 f5 = zeros(size(theta,1),4);
 f6 = [f2 f5];
 f = [f1;f6];

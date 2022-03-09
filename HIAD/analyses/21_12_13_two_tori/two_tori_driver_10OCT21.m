@@ -34,15 +34,10 @@ num_teststraps = 16;
 ts_theta0 = 0*pi/180;
 
 % load to be applied to testing straps
-load = 30;
-
-% Location of testing strap end in Radius-Z space
-test_rad = 20;
-test_z = 5;
+total_load = 30;
 
 %Location of cable end in Radius-Z space
-cable_rad = 10;
-cable_z = 5;
+cable_rad = 30;
 
 %% Define Model Inputs
 
@@ -69,7 +64,7 @@ pre_str = zeros(size(tor,1),1); % Interaction element prestrain
 [FEM] = build_bench(FEM,tor,theta,th_bench, K_shear);
 
 % Assemble testing link and strap elements
-[FEM, rebound, test_theta] = build_testing_links_straps(FEM,tor,straps,load,theta,th_tst,test_rad,test_z,cable_rad,cable_z);
+[FEM, rebound, test_theta] = build_testing_links_straps(FEM,tor,straps,total_load,theta,th_tst,cable_rad,C);
 
 %Plot initial FEM
 FEM.PLOT = plot_controls;
@@ -98,15 +93,19 @@ t = cputime;
 FEM.ANALYSIS = FE_controls1;
 [FEM_out] = increment_FE(FEM);
 
-[FEM_out] = bound_displace_strap(FEM_out, rebound, test_theta, C, tor);
+%[FEM_out] = bound_displace_strap(FEM_out, rebound, test_theta, C, tor);
 
 % Displacement based analysis
-FEM_out.ANALYSIS = FE_controls2;
-[FEM_out2] = increment_FE(FEM_out);
+%FEM_out.ANALYSIS = FE_controls2;
+%[FEM_out2] = increment_FE(FEM_out);
 
 cpu_run_time = cputime - t;
 toc
 
+FEM_out.PLOT = plot_controls_deformed;
+FEM_plot(FEM_out)
+
+save("FEM_out.mat", "FEM_out")
 %% POST PROCESS RESULTS
 % % To be added
 % FE_plot(FEM_out2)

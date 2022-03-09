@@ -10,7 +10,7 @@ if size(theta_tor,1) > 1
 end
 
 % Loop through loop straps
-for i = 1:size(straps,1)
+for i = 1:size(straps,1)-1
     % First strap node
     th_st1 = linspace(straps(i).theta0,straps(i).theta0 + 2*pi,straps(i).num_straps + 1)';
     th_st1(end) = [];
@@ -88,7 +88,7 @@ for i = 1:size(tor,1)
     z = interp1(theta_load,tori(:,3),theta,"cubic");
 
     nodes = [x y z];
-    C(i,:) = [x(1) y(1)];
+    C(i,:) = [x(1) z(1)];
     %% ORIENTATION
     orientation = nodes;
     orientation(:,3) = orientation(:,3) + 100;

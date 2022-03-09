@@ -23,6 +23,7 @@ c_link = zeros(size(straps,1)-1,4); % Preallocate
 join_master = [straps.join]';
 join_master = join_master(3:3:end);
 num_straps = [straps.num_straps]';
+num_straps = num_straps(1:2);
 nodes = zeros(sum(num_straps(join_master == 0))*2 + sum(num_straps(join_master == 1)),8);
 node_i = 1;
 
