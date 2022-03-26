@@ -169,7 +169,7 @@ for i = 1:size(straps,1)
 end
 
 con_strap = con_strap + N;
-con_strap = [con_strap 3*ones(size(con_strap,1),1)];
+con_strap = [con_strap 1*ones(size(con_strap,1),1)];
 
 strap_type = strap_type(:);
 strap_type(strap_type == 0) = [];

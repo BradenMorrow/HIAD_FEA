@@ -99,7 +99,7 @@ for i = 1:size(tor,1)
     connect_i = [(1:size(theta,1))' (2:size(theta,1) + 1)']; % Tori loop
     connect_i(end,2) = 1;
     connect_i = connect_i + N;
-    connect = [connect_i 5*ones(size(connect_i,1),1)];
+    connect = [connect_i 3*ones(size(connect_i,1),1)];
     
     % Loop through elements
     for j = 1:size(connect,1)

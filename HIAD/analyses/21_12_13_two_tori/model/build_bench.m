@@ -30,12 +30,12 @@ r1 = tor(1).r;
 K_ax = 1; % Distribute to each node (assumes uniform nodal distribution) lbf/strain
 
 % Determine geometric properties
-E = 100; % Arbitralily fixed
+E = 1; %
 A = K_ax/E;
 Izz = K_shear*r1^3/(3*E);
 Iyy = pi/4*2^4;
 J = 1;
-[axial,axial_k] = strap_response(100,5.6941e+06,0,0.0001,0.0001);
+[axial,axial_k] = strap_response(10,5.6941e+06,0,0.0001,0.0001);
 
 
 %% NODES
@@ -68,7 +68,7 @@ connect_i = [size(tori_theta,1) + tori_nodes(1:size(theta,1)) size(FEM.MODEL.nod
 connect_j = [size(tori_theta,1) +  tori_nodes(1:size(theta,1)) size(FEM.MODEL.nodes,1) + size(theta,1) + (1:(size(theta,1)))'];
 connect_g =[size(tori_theta,1) + tori_nodes(1:size(theta,1))  size(FEM.MODEL.nodes,1) + size(theta,1)*2 + (1:(size(theta,1)))'];
 connect_all = [connect_i; connect_j; connect_g];
-connect = [connect_all 4*ones(size(connect_all,1),1)];
+connect = [connect_all 2*ones(size(connect_all,1),1)];
 
 
 %% BOUNDARIES

@@ -53,7 +53,7 @@ orientation(:,3) = 1e6;
 %% CONNECTIVITIES
 connect_i = [(1:size(theta,1))' (1:size(theta,1))' + size(theta,1)];
 
-connect = [connect_i 1*ones(size(connect_i,1),1)];
+connect = [connect_i 2*ones(size(connect_i,1),1)];
 
 %% ELEMENTS
 for j = 1:size(connect,1)

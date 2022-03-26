@@ -63,11 +63,10 @@ end
 
 
 if (undef)
-    line(x(ind1,:)',y(ind1,:)',z(ind1,:)','color','k','linestyle','-','linewidth',2)
-    line(x(ind2,:)',y(ind2,:)',z(ind2,:)','color','b','linestyle','-','linewidth',2) % ,'marker','o') % 
-    line(x(ind3,:)',y(ind3,:)',z(ind3,:)','color','r','linestyle','-','linewidth',2) % ,'marker','o') % 
-    line(x(ind4,:)',y(ind4,:)',z(ind4,:)','color','g','linestyle','-','linewidth',2)
-    line(x(ind5,:)',y(ind5,:)',z(ind5,:)','color','k','linestyle','-','linewidth',1)
+    line(x(ind1,:)',y(ind1,:)',z(ind1,:)','color','r','linestyle','-','linewidth',1)
+    line(x(ind2,:)',y(ind2,:)',z(ind2,:)','color','k','linestyle','-','linewidth',1) % ,'marker','o') % 
+    line(x(ind3,:)',y(ind3,:)',z(ind3,:)','color','k','linestyle','-','linewidth',2) % ,'marker','o') % 
+    line(x(ind4,:)',y(ind4,:)',z(ind4,:)','color','b','linestyle','-','linewidth',1)
 end
 
 % Deformed shape
@@ -75,11 +74,10 @@ end
 % % % ind1 = [];
 if (def)
     if sum(U) ~=0
-    line(x1(ind1,:)',y1(ind1,:)',z1(ind1,:)','color','k','linestyle','-','linewidth',2)
-    line(x1(ind2,:)',y1(ind2,:)',z1(ind2,:)','color','b','linestyle','-','linewidth',2) % ,'marker','o') % 
-    line(x1(ind3,:)',y1(ind3,:)',z1(ind3,:)','color','r','linestyle','-','linewidth',2) % ,'marker','o') % 
-    line(x1(ind4,:)',y1(ind4,:)',z1(ind4,:)','color','g','linestyle','-','linewidth',2)
-    line(x1(ind5,:)',y1(ind5,:)',z1(ind5,:)','color','k','linestyle','-','linewidth',1)
+        line(x1(ind1,:)',y1(ind1,:)',z1(ind1,:)','color','r','linestyle','-','marker','none')
+        line(x1(ind2,:)',y1(ind2,:)',z1(ind2,:)','color','k','linestyle','-','marker','none')
+        line(x1(ind3,:)',y1(ind3,:)',z1(ind3,:)','color','k','linestyle','-','linewidth',1) % ,'marker','o' % 
+        line(x1(ind4,:)',y1(ind4,:)',z1(ind4,:)','color','b','linestyle','-','linewidth',1)
     end
 end
 

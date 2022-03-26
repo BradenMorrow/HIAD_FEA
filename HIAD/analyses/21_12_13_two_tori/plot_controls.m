@@ -3,7 +3,7 @@ function [PLOT] = plot_controls
 
 % Plotting flags for FE_plot
 PLOT.plot = 1; % 1 = plot output
-PLOT.fig = 1; % Figure number
+PLOT.fig = 11; % Figure number
 PLOT.scale = 0; % Deformation scale
 PLOT.undef = 1; % Plot undeformed shape
 PLOT.def = 0; % Plot deformed shape

@@ -66,10 +66,6 @@ pre_str = zeros(size(tor,1),1); % Interaction element prestrain
 % Assemble testing link and strap elements
 [FEM, rebound, test_theta] = build_testing_links_straps(FEM,tor,straps,total_load,theta,th_tst,cable_rad,C);
 
-%Plot initial FEM
-FEM.PLOT = plot_controls;
-FEM_plot(FEM)
-
 % Initialize cord force arrays
 FEM.OUT.cord_f = zeros(50,7);
 th = size(FEM.MODEL.theta,1);
@@ -89,28 +85,36 @@ end
 tic
 t = cputime;
 
+FEM.PLOT = plot_controls;
+
 % Force based analysis
 FEM.ANALYSIS = FE_controls1;
 [FEM_out] = increment_FE(FEM);
 
-%[FEM_out] = bound_displace_strap(FEM_out, rebound, test_theta, C, tor);
+[FEM_out] = rebound_strap(FEM_out, rebound);
 
 % Displacement based analysis
-%FEM_out.ANALYSIS = FE_controls2;
-%[FEM_out2] = increment_FE(FEM_out);
-
+ FEM_out.ANALYSIS = FE_controls2;
+ disp('Starting Displacement Analysis')
+ [FEM_out2] = increment_FE(FEM_out);
 cpu_run_time = cputime - t;
 toc
 
-FEM_out.PLOT = plot_controls_deformed;
-FEM_plot(FEM_out)
-
-save("FEM_out.mat", "FEM_out")
+save("FEM_out.mat", "FEM_out2")
 %% POST PROCESS RESULTS
-% % To be added
-% FE_plot(FEM_out2)
-% 
-% save('FEM_out')
+% Plot initial FEM
+FEM.PLOT = plot_controls;
+FEM_plot(FEM)
+
+% Plot after force analysis
+FEM_out.PLOT = plot_controls_force;
+FEM_plot(FEM_out)
+post_proc_driver1(FEM_out)
+
+% Plot after displacement analysis
+FEM_out2.PLOT = plot_controls_deform;
+FEM_plot(FEM_out2)
+post_proc_driver2(FEM_out2)
 % % END POST PROCESS RESULTS
 
 
