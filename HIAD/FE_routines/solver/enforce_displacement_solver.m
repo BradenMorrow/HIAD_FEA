@@ -50,7 +50,7 @@ while res_error > tol && iter <= max_iter && norm(U) < 1000
     % U0 is the previously converged U
     % U is total U
     % DELTA_U is the step change in U
-    % delta_U is the iteration change in U
+    % delta_U is the itteration change in U
     
     DELTA_U(disp_DOF) = DELTA_U(disp_DOF) + delta_U(disp_DOF);
 

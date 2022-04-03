@@ -22,7 +22,7 @@ plot_tor(1).view = 7; % TF = 1 +Y, Z vert
                       % TF = 5 +Z, Y vert
                       % TF = 6 -Z, Y vert
                       % TF = 7 ISO
-plot_tor(1).el_type = []; % plotting elements other than 5 
+plot_tor(1).el_type = [1,1,1,1]; % plotting elements other than 5 
 plot_tor(1).scale = 1; % scale of deformation
 plot_tor(1).triad = 1; % triad switch
 plot_tor(1).triad_loc = [0 0 0]'; % triad location

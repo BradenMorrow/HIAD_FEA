@@ -7,7 +7,7 @@ run_old = 0;
 plot_tor(1).n = 12; % Number of slats on cross section, 0 for no plot, 
 % NOTE: do not use even numbers not divisible by 4, if you do n = n + 1;
 plot_tor(1).LS = size(FEM.OUT.Uinc,2); % load step plotted
-plot_tor(1).PF = 1; % plot forces?
+plot_tor(1).PF = 0; % plot forces?
 plot_tor(1).plot_type = 1; % 1 = DCP, 2 = DF, 3 = UF, 4 = DWF, 5 = UWF 
 plot_tor(1).def = 1;
 plot_tor(1).fig = 2; %figure number

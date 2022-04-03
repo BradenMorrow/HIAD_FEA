@@ -1,4 +1,4 @@
-function [FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,tor,straps)
+function [FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,tor,straps,offset)
 %% Preprocess link geometry
 straps = straps(1:2);
 
@@ -40,13 +40,15 @@ for i = 1:size(straps,1)
     theta_1(theta_1 < 0) = theta_1(theta_1 < 0) + 2*pi;
     theta_1(end) = [];
     theta_1 = round(theta_1/tol)*tol;
-    
+    theta_1 = theta_1+offset;
+
     % Theta vector for node 2
     theta_2 = linspace(straps(i).theta0 + straps(i).theta_sweep,straps(i).theta0 + straps(i).theta_sweep + 2*pi,straps(i).num_straps + 1)';
     theta_2(theta_2 >= 2*pi) = theta_2(theta_2 >= 2*pi) - 2*pi;
     theta_2(theta_2 < 0) = theta_2(theta_2 < 0) + 2*pi;
     theta_2(end) = [];
     theta_2 = round(theta_2/tol)*tol;
+    theta_2 = theta_2+offset;
     
     [~, ind] = intersect(theta, theta_1);
     ind2 = ind+length(theta);

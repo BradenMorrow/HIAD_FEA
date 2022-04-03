@@ -111,8 +111,8 @@ end
 
 % Plot each increment
 if (FEM.PLOT.plot_inc)
-    FEM_plot(FEM)
-    %eval(FEM.PLOT.plot_shape)
+    % FE_plot(FEM)
+    eval(FEM.PLOT.plot_shape)
 end
 
 FEM.cut = cut;

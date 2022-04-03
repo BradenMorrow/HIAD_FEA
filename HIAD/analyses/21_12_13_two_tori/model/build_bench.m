@@ -1,4 +1,4 @@
-function [FEM] = build_bench(FEM,tor,tori_theta,theta1,K_shear)
+function [FEM] = build_bench(FEM,tor,tori_theta,theta1)
 
 % Combine theta locations
 theta1(theta1 >= 2*pi) = theta1(theta1 >= 2*pi) - 2*pi;
@@ -23,19 +23,15 @@ EL(size(theta,1)).el_in0.mat = [];
 EL(size(theta,1)).el_in0.geom = [];
 EL = EL';
 
+% Properties for Bench Elements
+E = 1;
+R = .1;
+A = pi*R^2;
+Izz = pi*R^4/4;
+Iyy = pi*R^4/4;
+J = pi*R^4/2;
 
-%% Create Bench Elements
-r1 = tor(1).r;
-
-K_ax = 1; % Distribute to each node (assumes uniform nodal distribution) lbf/strain
-
-% Determine geometric properties
-E = 1; %
-A = K_ax/E;
-Izz = K_shear*r1^3/(3*E);
-Iyy = pi/4*2^4;
-J = 1;
-[axial,axial_k] = strap_response(10,5.6941e+06,0,0.0001,0.0001);
+[axial,axial_k] = strap_response(E,5.6941e+06,0,0.0001,0.0001);
 
 
 %% NODES
@@ -92,17 +88,30 @@ FEM.MODEL.U_pt = [FEM.MODEL.U_pt; U];
 for j = 1:size(connect_i,1)
     EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
     
+%     % Define element functions
+%     EL(j).el = 'el4'; % Linear, corotational beam
+%     
+%     % Special element input
+%     EL(j).el_in0.break = 0;
+%     EL(j).el_in0.mat = [E .3]; % [E nu]
+%     EL(j).el_in0.geom = [A Izz Iyy 0 J]; % [A Izz Iyy ky J]
+%     EL(j).el_in0.axial = axial;
+%     EL(j).el_in0.axial_k = axial_k;
+%     % Element prestrain
+%     EL(j).el_in0.eps0 = 0;
+
     % Define element functions
-    EL(j).el = 'el4'; % Linear, corotational beam
+    EL(j).el = 'el2'; % Linear, corotational beam
     
     % Special element input
     EL(j).el_in0.break = 0;
     EL(j).el_in0.mat = [E .3]; % [E nu]
     EL(j).el_in0.geom = [A Izz Iyy 0 J]; % [A Izz Iyy ky J]
-    EL(j).el_in0.axial = axial;
-    EL(j).el_in0.axial_k = axial_k;
+    
     % Element prestrain
     EL(j).el_in0.eps0 = 0;
+
+
 end
 
 for j = size(connect_i,1)+1:size(connect_all,1)

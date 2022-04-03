@@ -41,8 +41,8 @@ tor(T).Fc = tor(T).p*pi*tor(T).r^2/length(tor(T).alpha)*(1 - 2*cotd(tor(T).beta)
 tor(T).eps0 = interp1(d(:,1),d(:,2),tor(T).Fc); % Initial cord strain
 tor(T).load = false; % Line load applied to torus
 tor(T).state_it = false; % Iterative or non-iterative state determination procedure
-tor(T).K_ax = .35*pi*tor(T).p*1; % lb/in/in
-% tor(T).K_shear = 1.97073285297482*tor(T).p + 8.16388834079922; % lb/in/in
+% tor(T).K_ax = .35*pi*tor(T).p*1; % lb/in/in
+tor(T).K_ax = 1.97073285297482*tor(T).p + 8.16388834079922; % lb/in/in
 tor(T).K_shear = .72*pi*tor(T).p*1; % lb/in/in
 
 %% T2
@@ -62,8 +62,8 @@ tor(T).Fc = tor(T).p*pi*tor(T).r^2/length(tor(T).alpha)*(1 - 2*cotd(tor(T).beta)
 tor(T).eps0 = interp1(d(:,1),d(:,2),tor(T).Fc); % Initial cord strain
 tor(T).load = false; % Line load applied to torus
 tor(T).state_it = false; % Iterative or non-iterative state determination procedure
-tor(T).K_ax = .35*pi*tor(T).p*1; % lb/in/in
-%tor(T).K_shear = 1.97073285297482*tor(T).p + 8.16388834079922; % lb/in/in
+% tor(T).K_ax = .35*pi*tor(T).p*1; % lb/in/in
+tor(T).K_ax = 1.97073285297482*tor(T).p + 8.16388834079922; % lb/in/in
 tor(T).K_shear = .72*pi*tor(T).p*1; % lb/in/in
 
 

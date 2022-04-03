@@ -1,4 +1,4 @@
-function [FEM, theta, th_bench, th_tst, C] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length,files)
+function [FEM, theta, th_bench, th_tst, C, offset] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length,files)
 
 %% THETA
 % Theta tolerance
@@ -39,6 +39,7 @@ for i = 1:num_bench
 end
 
 th_bench = [th_bench1; th_bench2];
+
 % Combine theta locations
 theta1 = [theta_tor; th_st1; th_st2; th_tst; th_bench];
 theta1(theta1 >= 2*pi) = theta1(theta1 >= 2*pi) - 2*pi;
@@ -81,11 +82,13 @@ for i = 1:size(tor,1)
     [theta_load, ~] = cart2pol(tori(:,1),tori(:,2));
     ind = theta_load(:) < 0;
     theta_load(ind) = (2*pi)+theta_load(ind);
+    offset = theta_load(1);
+    theta_load = theta_load(:) - offset;
     theta_load(end) = 2*pi;
 
-    x = interp1(theta_load,tori(:,1),theta,"cubic");
-    y = interp1(theta_load,tori(:,2),theta,"cubic");
-    z = interp1(theta_load,tori(:,3),theta,"cubic");
+    x = interp1(theta_load,tori(:,1),theta,"spline");
+    y = interp1(theta_load,tori(:,2),theta,"spline");
+    z = interp1(theta_load,tori(:,3),theta,"spline");
 
     nodes = [x y z];
     C(i,:) = [x(1) z(1)];
@@ -173,6 +176,10 @@ for i = 1:size(tor,1)
     FEM.MODEL.F = [FEM.MODEL.F; F];
     
 end
+
+theta = theta(:) + offset;
+th_bench = th_bench(:) + offset;
+th_tst = th_tst(:) + offset;
 
 %% Set forces
 FEM.MODEL.F_pre = FEM.MODEL.F*0;

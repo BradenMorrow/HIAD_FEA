@@ -1,9 +1,10 @@
 clear
+clc
 close all
 
 %% USER INPUT
 % Define file paths to tori4 and tori5
-files = ["tori1.mat", "tori2.mat"];
+files = ["T4.mat", "T5.mat"];
 
 % Define inboard torus major radius to estimate bench node spacing
 r_major = 79;
@@ -13,7 +14,7 @@ r_minor = [6.7
     6.7];
 
 % Minimum number of torus nodes
-min_nodes = 200;
+min_nodes = 150;
 
 % number of loop straps in strap sets
 num_straps = 16;
@@ -34,7 +35,7 @@ num_teststraps = 16;
 ts_theta0 = 0*pi/180;
 
 % load to be applied to testing straps
-total_load = 30;
+total_load = 30; %lbf
 
 %Location of cable end in Radius-Z space
 cable_rad = 30;
@@ -51,31 +52,31 @@ straps = define_straps(r_minor,num_straps);
 
 %% BUILD MODEL
 % Assemble torus elements
-[FEM, theta, th_bench, th_tst, C] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length,files);
+[FEM, theta, th_bench, th_tst, C, offset] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length,files);
 
 % Assemble interaction elements
 pre_str = zeros(size(tor,1),1); % Interaction element prestrain
 [FEM, K_shear] = build_int(FEM,theta,C,tor,pre_str);
 
 % Assemble link and strap elements
-[FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,tor,straps);
+[FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,tor,straps, offset);
 
 % Assemble testing bench elements
-[FEM] = build_bench(FEM,tor,theta,th_bench, K_shear);
+[FEM] = build_bench(FEM,tor,theta,th_bench);
 
 % Assemble testing link and strap elements
-[FEM, rebound, test_theta] = build_testing_links_straps(FEM,tor,straps,total_load,theta,th_tst,cable_rad,C);
+[FEM, rebound, test_theta, cable_post] = build_testing_links_straps(FEM,tor,straps,total_load,theta,th_tst,cable_rad,C);
 
 % Initialize cord force arrays
-FEM.OUT.cord_f = zeros(50,7);
+FEM.OUT.cord_f = zeros(50,2);
 th = size(FEM.MODEL.theta,1);
 for i = 1:2
     FEM.OUT.cord_f(1,i) = FEM.EL((i - 1)*th + 1).el_in0.f(1);
 end
 
-FEM.OUT.cord_f2 = zeros(50,7);
+FEM.OUT.cord_f2 = zeros(50,2);
 th = size(FEM.MODEL.theta,1);
-for i = 1:3
+for i = 1:2
     FEM.OUT.cord_f2(1,i) = FEM.EL((i - 1)*th + 1).el_in0.f(2);
 end
 
@@ -91,31 +92,24 @@ FEM.PLOT = plot_controls;
 FEM.ANALYSIS = FE_controls1;
 [FEM_out] = increment_FE(FEM);
 
-[FEM_out] = rebound_strap(FEM_out, rebound);
+disp('Loading Analysis Finished.')
 
 % Displacement based analysis
- FEM_out.ANALYSIS = FE_controls2;
- disp('Starting Displacement Analysis')
- [FEM_out2] = increment_FE(FEM_out);
+[FEM_out] = rebound_strap(FEM_out, rebound);
+
+FEM_out.MODEL.F_pre = FEM_out.OUT.Fext_inc(:,end);
+FEM_out.MODEL.U0 = FEM_out.OUT.U;
+
+FEM_out.ANALYSIS = FE_controls2;
+[FEM_out2] = increment_FE(FEM_out);
 cpu_run_time = cputime - t;
 toc
 
-save("FEM_out.mat", "FEM_out2")
+save("./results/FEM_out.mat", "FEM_out2");
+
+% END ANALYSIS
+
 %% POST PROCESS RESULTS
-% Plot initial FEM
-FEM.PLOT = plot_controls;
-FEM_plot(FEM)
+post_processing(FEM,FEM_out,FEM_out2,cable_post,theta,rebound);
 
-% Plot after force analysis
-FEM_out.PLOT = plot_controls_force;
-FEM_plot(FEM_out)
-post_proc_driver1(FEM_out)
-
-% Plot after displacement analysis
-FEM_out2.PLOT = plot_controls_deform;
-FEM_plot(FEM_out2)
-post_proc_driver2(FEM_out2)
 % % END POST PROCESS RESULTS
-
-
-
