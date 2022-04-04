@@ -40,7 +40,7 @@ total_load = 30; %lbf
 %Location of cable end in Radius-Z space
 cable_rad = 30;
 
-%% Define Model Inputs
+%% Defined Model Inputs
 
 % User defined torus properties
 tor = define_tor(r_minor);
