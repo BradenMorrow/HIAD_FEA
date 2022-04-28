@@ -24,7 +24,7 @@ EL(size(theta,1)).el_in0.geom = [];
 EL = EL';
 
 % Properties for Bench Elements
-E = 1;
+E = 1000;
 R = .1;
 A = pi*R^2;
 Izz = pi*R^4/4;

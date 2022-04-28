@@ -12,7 +12,7 @@ test_var.f_y = 300;
 test_var.support0 = 0; % Theta location of first support (deg)
 p_l = 1; % Plot load frame?
 p_s = 1; % Plot supports?
-p_f = 1; % Plot floor?
+p_f = 0; % Plot floor?
 fignum = 6; % Figure number
 
 % Call figure, determine limits of color scale

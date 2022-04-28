@@ -1,4 +1,4 @@
-function [FEM,rebound,theta,cable_post] = build_testing_links_straps(FEM,tor,straps,total_load,tori_theta,theta1,cable_rad,C)
+function [FEM,rebound,theta,cable_post,strap_post] = build_testing_links_straps(FEM,tor,straps,total_load,tori_theta,theta1,cable_rad,C)
 %% GENERAL
 center(1) = (C(1,2) + C(2,2))/2; % Contact between tori z
 center(2) = (C(1,1) + C(2,1))/2; % Contact between tori r
@@ -87,8 +87,8 @@ for i = 1:size(tori_nodes)
     z8 = cable_z;
     nodes8(i,:) = [x8 y8 z8];
     %% U displacement vector
-    x9 = -3*cos(theta(i));
-    y9 = -3*sin(theta(i));
+    x9 = -0.5*cos(theta(i));
+    y9 = -0.5*sin(theta(i));
     z9 = 0;
     nodes9(i,:) = [x9,y9,z9];
 end
@@ -120,9 +120,10 @@ connect_b = [connect_b1; connect_b2];
 bound_link = [connect_b 2*ones(size(connect_b,1),1)];
 % Cable
 connect_c = [size(FEM.MODEL.nodes,1) + size(theta,1)*2 + (1:(size(theta,1)))' size(FEM.MODEL.nodes,1) + size(theta,1)*7 + (1:(size(theta,1)))'];
-cable_link = [connect_c 2*ones(size(connect_c,1),1)];
+cable_link = [connect_c 1*ones(size(connect_c,1),1)];
 
 cable_post = [size(FEM.MODEL.connect,1)+size(con_link,1)+size(strap_link,1)+size(bound_link,1)+1, size(FEM.MODEL.connect,1)+size(con_link,1)+size(strap_link,1)++size(bound_link,1)+size(cable_link,1)];
+strap_post = size(FEM.MODEL.connect,1)+size(con_link,1)+1;
 %% ELEMENTS
 % Preallocate element structure
 EL = [];

@@ -14,7 +14,7 @@ r_minor = [6.7
     6.7];
 
 % Minimum number of torus nodes
-min_nodes = 150;
+min_nodes = 300;
 
 % number of loop straps in strap sets
 num_straps = 16;
@@ -63,9 +63,9 @@ pre_str = zeros(size(tor,1),1); % Interaction element prestrain
 
 % Assemble testing bench elements
 [FEM] = build_bench(FEM,tor,theta,th_bench);
-
+ 
 % Assemble testing link and strap elements
-[FEM, rebound, test_theta, cable_post] = build_testing_links_straps(FEM,tor,straps,total_load,theta,th_tst,cable_rad,C);
+[FEM, rebound, test_theta, cable_post,strap_post] = build_testing_links_straps(FEM,tor,straps,total_load,theta,th_tst,cable_rad,C);
 
 % Initialize cord force arrays
 FEM.OUT.cord_f = zeros(50,2);
@@ -105,11 +105,13 @@ FEM_out.ANALYSIS = FE_controls2;
 cpu_run_time = cputime - t;
 toc
 
-save("./results/FEM_out.mat", "FEM_out2");
+save("./results/Old Model/FEM.mat", "FEM");
+save("./results/Old Model/FEM_out.mat", "FEM_out");
+save("./results/Old Model/FEM_out2.mat", "FEM_out2");
 
 % END ANALYSIS
 
 %% POST PROCESS RESULTS
-post_processing(FEM,FEM_out,FEM_out2,cable_post,theta,rebound);
+post_processing(FEM,FEM_out,FEM_out2,cable_post,theta,rebound,strap_post);
 
 % % END POST PROCESS RESULTS
