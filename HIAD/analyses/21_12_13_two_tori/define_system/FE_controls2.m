@@ -4,9 +4,9 @@ function [ANALYSIS] = FE_controls2
 % Solver and analysis
 ANALYSIS.d_inc = 100; % Starting number of loading increments
 ANALYSIS.control = 4; % 1 - Displacement control solver;
-                      % 2 - Newton-Raphson solver;
+                      % 2 - Newton-Raphson solver; (Loading)
                       % 3 - Arc-length solver;
-                      % 4 - Enforce boundary conditions
+                      % 4 - Enforce boundary conditions (Displacement)
 ANALYSIS.NR_iter = 1; % Newton-Raphson, update stiffness matrix every 'NR_iter' iterations
 ANALYSIS.max_inc_count = 500; % Maximum number of increments
 ANALYSIS.min_inc_size = 1e-10; % Minimum increment size to abort program

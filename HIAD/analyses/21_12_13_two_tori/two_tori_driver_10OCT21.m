@@ -22,7 +22,7 @@ num_straps = 16;
 % number of test benches located radially around the tori
 num_bench = 4;
 
-% Half of size of bench (half of bench length, offset on either side of center)
+% Half of size of bench in. (half of bench length, offset on either side of center)
 bench_length = 12;
 
 % Location of first bench
@@ -37,7 +37,7 @@ ts_theta0 = 0*pi/180;
 % load to be applied to testing straps
 total_load = 30; %lbf
 
-%Location of cable end in Radius-Z space
+%Location of cable end in Radius space
 cable_rad = 30;
 
 %% Defined Model Inputs

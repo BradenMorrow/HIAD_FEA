@@ -164,7 +164,7 @@ for i = size(con_link,1)+1:size(con_link,1)+size(strap_link,1)
     EL(i).el_in0.eps0 = straps(strap_type).eps0;
 end
 
-% Bench
+% Boundary elements on end of cable
 for j = size(con_link,1)+size(strap_link,1)+1:size(con_link,1)+size(strap_link,1)+size(bound_link,1)
     EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
     

@@ -35,7 +35,7 @@ num_teststraps = 16;
 ts_theta0 = 0*pi/180;
 
 % load to be applied to testing straps
-total_load = 70; %lbf
+total_load = 200; %lbf
 
 %Location of cable end in Radius-Z space
 cable_rad = 30;
