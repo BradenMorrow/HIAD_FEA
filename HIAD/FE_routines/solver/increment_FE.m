@@ -202,16 +202,31 @@ while LAMBDA_old < 1 && max(abs(FEM.OUT.U)) < Dmax && count <= max_inc_count
         a = 1;
     end
     
+        th = size(FEM.MODEL.theta,1);
+    for i = 1:2
+        eps = FEM.EL((i - 1)*th + 1).el_in0.flex.e(1);
+        axial = FEM.EL((i - 1)*th + 1).el_in0.nodes(1).cords.axial;
+        f = interp1(axial(:,2),axial(:,1),eps);
+        FEM.OUT.cord_f(FEM.inc_count + 1,i) = f;
+    end
+    for i = 1:2
+        eps2 = FEM.EL((i - 1)*th + 1).el_in0.flex.e(2);
+        axial = FEM.EL((i - 1)*th + 1).el_in0.nodes(1).cords.axial;
+        f2 = interp1(axial(:,2),axial(:,1),eps2);
+        FEM.OUT.cord_f2(FEM.inc_count + 1,i) = f2;
+    end
+    
+
     % Update increment counters
     count = count + 1;
-    
     
     %     FEM.ANALYSIS.step = FEM.ANALYSIS.step + 1;
     FEM.inc_count = count;
     if rem(count,FEM.ANALYSIS.save_info_iter) == 0
         save(fullfile(current_analysis, 'FEM_interI'),'FEM')
     end
-    
+
+
 %     FEM.iter_info = iter_info;
 %     FEM.iter_info(FEM.iter_info(:,1) == 0,:) = [];
     

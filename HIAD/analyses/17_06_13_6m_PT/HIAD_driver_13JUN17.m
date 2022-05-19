@@ -106,10 +106,10 @@ save('FEM_st_minus','FEM_out')
 % Strap response
 fig_1 = 200;
 strap_forces_SI(FEM_out,straps,strap_type,strap_EL_1,fig_1)
-strap_test_SI(fig_1)
+%strap_test_SI(fig_1)
 
 
-% FE_plot(FEM_out)
+FE_plot(FEM_out)
 
 
 % END POST PROCESS RESULTS
