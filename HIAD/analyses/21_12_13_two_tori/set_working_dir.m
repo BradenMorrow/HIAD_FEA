@@ -2,7 +2,7 @@ cd(fileparts(mfilename('fullpath'))) % Automatically navigate to the current fol
 cd ..
 cd ..
 
-add_path = true; % Add or remove analysis paths
+add_path = 0; % Add or remove analysis paths
 set_directory; % Sets the directory for FE_routines and GA_toolbox
 
 if add_path

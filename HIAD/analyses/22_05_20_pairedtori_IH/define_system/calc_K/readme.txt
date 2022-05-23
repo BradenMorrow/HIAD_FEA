@@ -1,0 +1,1 @@
+Calculate the axial and shear stiffness for each element based on minor radius and inflation pressure.

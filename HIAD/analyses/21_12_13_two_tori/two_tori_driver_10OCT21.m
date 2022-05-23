@@ -87,7 +87,7 @@ tic
 t = cputime;
 
 FEM.PLOT = plot_controls;
-
+FEM_plot(FEM)
 % Force based analysis
 FEM.ANALYSIS = FE_controls1;
 [FEM_out] = increment_FE(FEM);

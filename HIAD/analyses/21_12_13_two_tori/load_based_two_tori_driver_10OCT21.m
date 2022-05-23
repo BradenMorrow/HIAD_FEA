@@ -32,7 +32,7 @@ b_theta0 = 0*pi/180;
 num_teststraps = 16;
 
 % Location of first strap
-ts_theta0 = 0*pi/180;
+ts_theta0 = pi/16; %0*pi/180;
 
 % load to be applied to testing straps
 total_load = 200; %lbf
@@ -87,6 +87,7 @@ tic
 t = cputime;
 
 FEM.PLOT = plot_controls;
+
 
 % Force based analysis
 
