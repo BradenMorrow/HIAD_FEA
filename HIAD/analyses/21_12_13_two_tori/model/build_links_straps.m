@@ -1,6 +1,6 @@
-function [FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,C,tor,straps)
+function [FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,tor,straps,offset)
 %% Preprocess link geometry
-
+straps = straps(1:2);
 
 %% GENERAL
 % Theta tolerance
@@ -16,50 +16,14 @@ J = pi*R^4/2;
 
 % Instantiate
 r = [tor.r]'; % Radius of tori
-c_link = zeros(size(straps,1),4); % Preallocate
-
-
-
-%% Find link and strap nodal locations
-for i = 1:size(straps,1)
-    %% Link Node Locations
-    con = straps(i).con;
-    
-    if con(1) == 0 && con(2) == 0 % Node to node
-        c_link(i,[1 2]) = straps(i).node1; % Set nodal location
-        c_link(i,[3 4]) = straps(i).node2; % Set nodal location
-        
-    elseif con(1)~= 0 && con(2) ~= 0 % Torus to torus
-        tangent  = circle_tan([C(con(1),:) C(con(2),:)], [r(con(1)) r(con(2))], straps(i).side); % Find tangent line beetween tori
-        c_link(i,[1 2]) = tangent(1,:); % Set the left node to the external tangent on the left side
-        c_link(i,[3 4]) = tangent(2,:); % Set the right node to the external tangent on the right side
-    
-    elseif con(1) == 0 && con(2) ~= 0 % Node to torus
-        c_link(i,[1 2]) = straps(i).node1; % Set nodal location
-        tangent  = circle_tan([straps(i).node1 C(con(2),:)], [0 r(con(2))], straps(i).side); % Find tangent line beetween tori
-        c_link(i, [3 4]) = tangent(2,:); % Set the right node to the external tangent on the right side
-    
-    elseif con(1)~= 0 && con(2) == 0 % Torus to node
-        tangent  = circle_tan([C(con(1),:) straps(i).node2], [r(con(1)) 0], straps(i).side); % Find tangent line beetween tori
-        c_link(i,[1 2]) = tangent(1,:); % Set the left node to the external tangent on the left side
-        c_link(i,[3 4]) = straps(i).node2; % Set nodal location
-    end
-end
-
-
-plotting = 1;
-if plotting == 1
-    figure(100)
-    hold on
-    plot(c_link(:,1),c_link(:,2),'ro')
-    plot(c_link(:,3),c_link(:,4),'ro')
-end
+c_link = zeros(size(straps,1)-1,4); % Preallocate
 
 %% Create nodes
 % Preallocate nodal matrix
 join_master = [straps.join]';
 join_master = join_master(3:3:end);
 num_straps = [straps.num_straps]';
+num_straps = num_straps(1:2);
 nodes = zeros(sum(num_straps(join_master == 0))*2 + sum(num_straps(join_master == 1)),8);
 node_i = 1;
 
@@ -68,7 +32,7 @@ nodes_1 = [];
 nodes_2 = [];
 
 for i = 1:size(straps,1)
-
+    
     
     % Theta vector for node 1
     theta_1 = linspace(straps(i).theta0,straps(i).theta0 + 2*pi,straps(i).num_straps + 1)';
@@ -76,42 +40,54 @@ for i = 1:size(straps,1)
     theta_1(theta_1 < 0) = theta_1(theta_1 < 0) + 2*pi;
     theta_1(end) = [];
     theta_1 = round(theta_1/tol)*tol;
-    
+    theta_1 = theta_1+offset;
+
     % Theta vector for node 2
     theta_2 = linspace(straps(i).theta0 + straps(i).theta_sweep,straps(i).theta0 + straps(i).theta_sweep + 2*pi,straps(i).num_straps + 1)';
     theta_2(theta_2 >= 2*pi) = theta_2(theta_2 >= 2*pi) - 2*pi;
     theta_2(theta_2 < 0) = theta_2(theta_2 < 0) + 2*pi;
     theta_2(end) = [];
     theta_2 = round(theta_2/tol)*tol;
+    theta_2 = theta_2+offset;
     
-    % % % Must modify Node 1 and Node 2 locations to coincide with location
-    % % %  of tori for a configuration other than a perfect circle
-    % Node 1
-%     if sum(straps(i).join(1) == join_ID) == 0 % If nodes have not been created yet
-    if straps(i).join(1) == 0 || straps(i).join(3) == 0 % If nodes have not been created yet
-        % Create nodes [x y z tor theta strap_set node_ij bound]
-        nodes_1 = [c_link(i,1)*cos(theta_1)'
-            c_link(i,1)*sin(theta_1)'
-            c_link(i,2)*ones(size(theta_1))'
-            straps(i).con(1)*ones(size(theta_1))'
-            theta_1'
-            i*ones(size(theta_1))'
-            1*ones(size(theta_1))'
-            straps(i).bound1*ones(size(theta_1))']';
-    end
-    
-    % Node 2
-%     if sum(straps(i).join(2) == join_ID) == 0 % If nodes have not been created yet
-    if straps(i).join(2) == 0 || straps(i).join(3) == 0 % If nodes have not been created yet
-        % Create nodes [x y z tor theta strap_set node_ij bound]
-        nodes_2 = [c_link(i,3)*cos(theta_2)'
-            c_link(i,3)*sin(theta_2)'
-            c_link(i,4)*ones(size(theta_2))'
-            straps(i).con(2)*ones(size(theta_2))'
-            theta_2'
-            i*ones(size(theta_2))'
-            2*ones(size(theta_2))'
-            straps(i).bound2*ones(size(theta_2))']';
+    [~, ind] = intersect(theta, theta_1);
+    ind2 = ind+length(theta);
+    tori_nodes = FEM.MODEL.nodes(ind,:);
+    tori_nodes2 = FEM.MODEL.nodes(ind2,:);
+    tangent_nodes = [sqrt((tori_nodes(:,1).^2)+tori_nodes(:,2).^2) tori_nodes(:,3)];
+    tangent_nodes2 = [sqrt((tori_nodes2(:,1).^2)+tori_nodes2(:,2).^2) tori_nodes2(:,3)];
+
+    for j = 1:num_straps
+        tangent = circle_tan([[tangent_nodes(j,1), tangent_nodes(j,2)], [tangent_nodes2(j,1), tangent_nodes2(j,2)]], [r(1) r(2)], straps(i).side);
+        % % % Must modify Node 1 and Node 2 locations to coincide with location
+        % % %  of tori for a configuration other than a perfect circle
+        % Node 1
+       %     if sum(straps(i).join(1) == join_ID) == 0 % If nodes have not been created yet
+        if straps(i).join(1) == 0 || straps(i).join(3) == 0 % If nodes have not been created yet
+            % Create nodes [x y z tor theta strap_set node_ij bound]
+            nodes_1(j,:) = [tangent(1,1)*cos(theta_1(j))
+                tangent(1,1)*sin(theta_1(j))
+                tangent(1,2)*ones(size(theta_1(j)))
+                straps(i).con(1)*1
+                theta_1(j)'
+                i*1
+                1*1
+                straps(i).bound1*1];
+        end
+        
+        % Node 2
+    %     if sum(straps(i).join(2) == join_ID) == 0 % If nodes have not been created yet
+        if straps(i).join(2) == 0 || straps(i).join(3) == 0 % If nodes have not been created yet
+            % Create nodes [x y z tor theta strap_set node_ij bound]
+            nodes_2(j,:) = [tangent(2,1)*cos(theta_2(j))
+                tangent(2,1)*sin(theta_2(j))'
+                tangent(2,2)*1
+                straps(i).con(2)*1
+                theta_2(j)
+                i*1
+                2*1
+                straps(i).bound2*1];
+        end
     end
     
     % Add to nodal matrix
@@ -151,9 +127,6 @@ strap_type = zeros(max(num_straps),size(straps,1));
 nodes_ind = (1:size(nodes,1))';
 
 for i = 1:size(straps,1)
-    if i == 17
-        a = 1;
-    end
     
     % First strap node
     con1 = nodes_ind(nodes(:,6) == i & nodes(:,7) == 1);
@@ -198,7 +171,7 @@ for i = 1:size(straps,1)
 end
 
 con_strap = con_strap + N;
-con_strap = [con_strap 3*ones(size(con_strap,1),1)];
+con_strap = [con_strap 1*ones(size(con_strap,1),1)];
 
 strap_type = strap_type(:);
 strap_type(strap_type == 0) = [];

@@ -20,7 +20,7 @@ clf
 box on
 hold on
 
-for i = [2 7] % 1:size(cord_f,2)
+for i = 1:size(cord_f,2)
     plot(Rz*Ffac,cord_f(:,i)*Ffac,'k-');
     plot(Rz*Ffac,cord_f2(:,i)*Ffac,'k-');
 end
@@ -41,7 +41,7 @@ hold on
 
 count = 1;
 fignum = [1000 1001];
-for i = [2 7] % 1:size(cord_f,2)
+for i = 1:size(cord_f,2)
     figure(fignum(count))
     plot(Rz(1:end - 2)*Ffac,cord_eps(1:end - 2,i)*100 - cord_eps(1,i)*100,'k--','linewidth',1.5);
     

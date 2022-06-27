@@ -1,7 +1,13 @@
-function [FEM,rebound,theta] = build_testing_links_straps(FEM,C,tor,straps,load,tori_theta,theta1,test_rad,test_z)
+function [FEM,rebound,theta,cable_post,strap_post] = build_testing_links_straps(FEM,tor,straps,total_load,tori_theta,theta1,cable_rad,C)
 %% GENERAL
-% Theta tolerance
-tol = 1e-12;
+center(1) = (C(1,2) + C(2,2))/2; % Contact between tori z
+center(2) = (C(1,1) + C(2,1))/2; % Contact between tori r
+test_z = center(1)+2.84;
+test_rad = center(2)-17.6;
+cable_z = test_z;
+
+% Instantiate
+r = [tor.r]'; % Radius of tori
 
 % Properties for link elements
 E = 10e6;
@@ -11,15 +17,24 @@ Izz = pi*R^4/4;
 Iyy = pi*R^4/4;
 J = pi*R^4/2;
 
-% Instantiate
-r = [tor.r]'; % Radius of tori
+% Properties for cable elements
+E2 = 10e6;
+R2 = .1;
+A2 = pi*R2^2;
+Izz2 = pi*R2^4/4;
+Iyy2 = pi*R2^4/4;
+J2 = pi*R2^4/2;
 
-% Combine theta locations
-theta1(theta1 >= 2*pi) = theta1(theta1 >= 2*pi) - 2*pi;
-theta1(theta1 < 0) = theta1(theta1 < 0) + 2*pi;
+% Properties for Bench Elements
+E3 = 20;
+R3 = .1;
+A3 = pi*R3^2;
+Izz3 = pi*R3^4/4;
+Iyy3 = pi*R3^4/4;
+J3 = pi*R3^4/2;
 
-% Sort theta vector
-theta = unique(theta1);
+% Get theta Locations
+theta = theta1;
 
 for i = 1:size(theta)
     for j = 1:size(tori_theta)
@@ -28,45 +43,57 @@ for i = 1:size(theta)
         end
     end
 end
+
 tori_nodes = tori_nodes';
 
-
 %% NODES
-% % % Must modify code for configuration other than a perfect
-% % %  circle
-% Link Element Node Locations
-x1 = C(1,1)*cos(theta);
-y1 = C(1,1)*sin(theta);
-z1 = C(1,2)*ones(size(theta))-tor(1).r;
-nodes1 = [x1 y1 z1];
-x2 = C(2,1)*cos(theta);
-y2 = C(2,1)*sin(theta);
-z2 = C(2,2)*ones(size(theta))+tor(1).r;
-% Strap Element Node Locations
-nodes2 = [x2 y2 z2];
-x3 = test_rad*cos(theta);
-y3 = test_rad*sin(theta);
-z3 = test_z*ones(size(theta));
-nodes3 = [x3 y3 z3];
-tangent  = circle_tan([C(1,:) C(2,:)], [r(1) r(2)], 0); % Find tangent line beetween tori
-x4 = tangent(1,1)*cos(theta);
-y4 = tangent(1,1)*sin(theta);
-z4 = tangent(1,2)*ones(size(theta));
-nodes4 = [x4, y4, z4];
-x5 = tangent(2,1)*cos(theta);
-y5 = tangent(2,1)*sin(theta);
-z5 = tangent(2,2)*ones(size(theta));
-nodes5 = [x5, y5, z5];
-x6 = test_rad*cos(theta)+4*cos(theta+(pi/2));
-y6 = test_rad*sin(theta)+4*sin(theta+(pi/2));
-z6 = test_z*ones(size(theta));
-nodes6 = [x6 y6 z6];
-x7 = test_rad*cos(theta)+4*cos(theta+((3*pi)/2));
-y7 = test_rad*sin(theta)+4*sin(theta+((3*pi)/2));
-z7 = test_z*ones(size(theta));
-nodes7 = [x7 y7 z7];
+for i = 1:size(tori_nodes)
+    tan1 = tangentPoint([test_rad, test_z],[sqrt(FEM.MODEL.nodes(tori_nodes(i),1)^2+FEM.MODEL.nodes(tori_nodes(i),2)^2),FEM.MODEL.nodes(tori_nodes(i),3)],r(1),0);
+    tan2 = tangentPoint([test_rad, test_z],[sqrt(FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),1)^2+FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),2)^2), FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),3)],r(2),1);
+    x1 = abs(tan1(1,1))*cos(theta(i));
+    y1 = abs(tan1(1,1))*sin(theta(i));
+    z1 = tan1(1,2);
+    nodes1(i,:) = [x1 y1 z1];
+    x2 = abs(tan2(1,1))*cos(theta(i));
+    y2 = abs(tan2(1,1))*sin(theta(i));
+    z2 = tan2(1,2);
+    nodes2(i,:) = [x2 y2 z2];
+    % Loading Strap Element Node Locations
+    x3 = test_rad*cos(theta(i));
+    y3 = test_rad*sin(theta(i));
+    z3 = test_z;
+    nodes3(i,:) = [x3 y3 z3];
+    point1 = [sqrt(FEM.MODEL.nodes(tori_nodes(i),1)^2+FEM.MODEL.nodes(tori_nodes(i),2)^2), FEM.MODEL.nodes(tori_nodes(i),3)];
+    point2 = [sqrt(FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),1)^2+FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),2)^2), FEM.MODEL.nodes(length(tori_theta)+tori_nodes(i),3)];
+    tangent  = circle_tan([[point1(1), point1(2)], [point2(1), point2(2)]], [r(1) r(2)], 1); % Find tangent line beetween tori
+    x4 = abs(tangent(1,1))*cos(theta(i));
+    y4 = abs(tangent(1,1))*sin(theta(i));
+    z4 = tangent(1,2);
+    nodes4(i,:) = [x4, y4, z4];
+    x5 = abs(tangent(2,1))*cos(theta(i));
+    y5 = abs(tangent(2,1))*sin(theta(i));
+    z5 = tangent(2,2);
+    nodes5(i,:) = [x5, y5, z5];
+    x6 = cable_rad*cos(theta(i))+4*cos(theta(i)+(pi/2));
+    y6 = cable_rad*sin(theta(i))+4*sin(theta(i)+(pi/2));
+    z6 = cable_z;
+    nodes6(i,:) = [x6 y6 z6];
+    x7 = cable_rad*cos(theta(i))+4*cos(theta(i)+((3*pi)/2));
+    y7 = cable_rad*sin(theta(i))+4*sin(theta(i)+((3*pi)/2));
+    z7 = cable_z;
+    nodes7(i,:) = [x7 y7 z7];
+    x8 = cable_rad*cos(theta(i));
+    y8 = cable_rad*sin(theta(i));
+    z8 = cable_z;
+    nodes8(i,:) = [x8 y8 z8];
+    %% U displacement vector
+    x9 = -0.5*cos(theta(i));
+    y9 = -0.5*sin(theta(i));
+    z9 = 0;
+    nodes9(i,:) = [x9,y9,z9];
+end
 
-nodes = [nodes1; nodes2; nodes3; nodes4; nodes5; nodes6; nodes7];
+nodes = [nodes1; nodes2; nodes3; nodes4; nodes5; nodes6; nodes7; nodes8];
 
 %% ORIENTATION
 orientation = zeros(size(nodes,1),3);
@@ -85,22 +112,26 @@ connect_s1 = [size(FEM.MODEL.nodes,1) + (1:(size(theta,1)))' size(FEM.MODEL.node
 connect_s2 = [size(FEM.MODEL.nodes,1) + size(theta,1) + (1:(size(theta,1)))' size(FEM.MODEL.nodes,1) + size(theta,1)*2 + (1:(size(theta,1)))'];
 connect_s3 = [size(FEM.MODEL.nodes,1) + size(theta,1)*3 + (1:(size(theta,1)))' size(FEM.MODEL.nodes,1) + size(theta,1)*4 + (1:(size(theta,1)))'];
 connect_s = [connect_s1; connect_s2; connect_s3];
-strap_link = [connect_s 3*ones(size(connect_s,1),1)];
+strap_link = [connect_s 1*ones(size(connect_s,1),1)];
 % bench
-connect_b1 = [size(FEM.MODEL.nodes,1) + size(theta,1)*2 + (1:(size(theta,1)))' size(FEM.MODEL.nodes,1) + size(theta,1)*5 + (1:(size(theta,1)))'];
-connect_b2 = [size(FEM.MODEL.nodes,1) + size(theta,1)*2 + (1:(size(theta,1)))' size(FEM.MODEL.nodes,1) + size(theta,1)*6 + (1:(size(theta,1)))'];
+connect_b1 = [size(FEM.MODEL.nodes,1) + size(theta,1)*7 + (1:(size(theta,1)))' size(FEM.MODEL.nodes,1) + size(theta,1)*5 + (1:(size(theta,1)))'];
+connect_b2 = [size(FEM.MODEL.nodes,1) + size(theta,1)*7 + (1:(size(theta,1)))' size(FEM.MODEL.nodes,1) + size(theta,1)*6 + (1:(size(theta,1)))'];
 connect_b = [connect_b1; connect_b2];
-bound_link = [connect_b 4*ones(size(connect_b,1),1)];
+bound_link = [connect_b 2*ones(size(connect_b,1),1)];
+% Cable
+connect_c = [size(FEM.MODEL.nodes,1) + size(theta,1)*2 + (1:(size(theta,1)))' size(FEM.MODEL.nodes,1) + size(theta,1)*7 + (1:(size(theta,1)))'];
+cable_link = [connect_c 1*ones(size(connect_c,1),1)];
 
-
+cable_post = [size(FEM.MODEL.connect,1)+size(con_link,1)+size(strap_link,1)+size(bound_link,1)+1, size(FEM.MODEL.connect,1)+size(con_link,1)+size(strap_link,1)++size(bound_link,1)+size(cable_link,1)];
+strap_post = size(FEM.MODEL.connect,1)+size(con_link,1)+1;
 %% ELEMENTS
 % Preallocate element structure
 EL = [];
-EL(size(con_link,1)+size(strap_link,1)).el = [];
-EL(size(con_link,1)+size(strap_link,1)).el_in = [];
-EL(size(con_link,1)+size(strap_link,1)).el_in0.break = [];
-EL(size(con_link,1)+size(strap_link,1)).el_in0.mat = [];
-EL(size(con_link,1)+size(strap_link,1)).el_in0.geom = [];
+EL(size(con_link,1)+size(strap_link,1)+size(bound_link,1)+size(cable_link,1)).el = [];
+EL(size(con_link,1)+size(strap_link,1)+size(bound_link,1)+size(cable_link,1)).el_in = [];
+EL(size(con_link,1)+size(strap_link,1)+size(bound_link,1)+size(cable_link,1)).el_in0.break = [];
+EL(size(con_link,1)+size(strap_link,1)+size(bound_link,1)+size(cable_link,1)).el_in0.mat = [];
+EL(size(con_link,1)+size(strap_link,1)+size(bound_link,1)+size(cable_link,1)).el_in0.geom = [];
 EL = EL';
 
 % Links
@@ -117,8 +148,8 @@ for i = 1:size(con_link,1)
 end
 
 % Straps
-strap_type = 2;
-for i = size(con_link,1):size(con_link,1)+size(strap_link,1)
+strap_type = 3;
+for i = size(con_link,1)+1:size(con_link,1)+size(strap_link,1)
     EL(i).el_in0 = instantiate_EL; % Instatiate all element variables
     
     % Define element functions
@@ -133,8 +164,8 @@ for i = size(con_link,1):size(con_link,1)+size(strap_link,1)
     EL(i).el_in0.eps0 = straps(strap_type).eps0;
 end
 
-% Bench
-for j = size(con_link,1)+size(strap_link,1):size(con_link,1)+size(strap_link,1)+size(bound_link,1)
+% Boundary elements on end of cable
+for j = size(con_link,1)+size(strap_link,1)+1:size(con_link,1)+size(strap_link,1)+size(bound_link,1)
     EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
     
     % Define element functions
@@ -142,8 +173,24 @@ for j = size(con_link,1)+size(strap_link,1):size(con_link,1)+size(strap_link,1)+
     
     % Special element input
     EL(j).el_in0.break = 0;
-    EL(j).el_in0.mat = [E .3]; % [E nu]
-    EL(j).el_in0.geom = [A Izz Iyy 0 J]; % [A Izz Iyy ky J]
+    EL(j).el_in0.mat = [E3 .3]; % [E nu]
+    EL(j).el_in0.geom = [A3 Izz3 Iyy3 0 J3]; % [A Izz Iyy ky J]
+    
+    % Element prestrain
+    EL(j).el_in0.eps0 = 0;
+end
+
+% Cable
+for j = size(con_link,1)+size(strap_link,1)+size(bound_link,1)+1:size(con_link,1)+size(strap_link,1)+size(bound_link,1)+size(cable_link)
+    EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
+    
+    % Define element functions
+    EL(j).el = 'el2'; % Linear, corotational beam
+    
+    % Special element input
+    EL(j).el_in0.break = 0;
+    EL(j).el_in0.mat = [E2 .3]; % [E nu]
+    EL(j).el_in0.geom = [A2 Izz2 Iyy2 0 J2]; % [A Izz Iyy ky J]
     
     % Element prestrain
     EL(j).el_in0.eps0 = 0;
@@ -152,37 +199,40 @@ end
 %% MODEL
 FEM.EL = [FEM.EL; EL];
 FEM.MODEL.nodes = [FEM.MODEL.nodes; nodes(:,1:3)];
-FEM.MODEL.connect = [FEM.MODEL.connect; [con_link;strap_link;bound_link]];
-FEM.MODEL.orientation = zeros(size(FEM.MODEL.connect,1),3);
+FEM.MODEL.connect = [FEM.MODEL.connect; [con_link;strap_link;bound_link;cable_link]];
+FEM.MODEL.orientation = zeros(size(FEM.EL,1),1);
 FEM.MODEL.orientation(:,3) = 1e6;
 
 %% Boundary 
 b1 = zeros(size(theta,1)*5,6);
 b2 = ones(size(theta,1)*2,6);
-b = [b1; b2;];
+b3 = zeros(size(theta,1),6);
+b = [b1; b2; b3];
 b = b';
 bound = b(:);
-rebound(1,:) = [(size(FEM.MODEL.B,1)/6 + size(theta,1)*4) (size(FEM.MODEL.B,1)/6 + size(theta,1)*6)];
+rebound(1,:) = [(size(FEM.MODEL.B,1) + size(theta,1)*7*6) (size(FEM.MODEL.B,1) + size(theta,1)*8*6)];
 FEM.MODEL.B = [FEM.MODEL.B; bound];
 
 %% Loading
-f1 = zeros(size(theta,1)*2,6);
-f2 = (-load)*[cos(theta) sin(theta)];
+f1 = zeros(size(theta,1)*7,6);
+f2 = (-total_load)*[cos(theta) sin(theta)];
 f5 = zeros(size(theta,1),4);
 f6 = [f2 f5];
-f7 = zeros(size(theta,1)*4,6);
-f = [f1;f6;f7];
+f = [f1;f6];
 f = f';
 F = f(:);
 
 FEM.MODEL.F = [FEM.MODEL.F; F];
 
 %% U Vector Displacements
-u = zeros(size(FEM.MODEL.nodes,1),6);
+u1 = zeros(size(theta,1)*7,6);
+u2 = zeros(size(theta,1),3);
+u3 = [nodes9, u2];
+u = [u1;u3];
 u = u';
 U = u(:);
 
-FEM.MODEL.U_pt = [U];
+FEM.MODEL.U_pt = [FEM.MODEL.U_pt; U];
 
 
 %% Set forces

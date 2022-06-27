@@ -1,4 +1,4 @@
-function [FEM] = build_bench(FEM,C,tor,tori_theta,theta1,K_shear)
+function [FEM] = build_bench(FEM,tor,tori_theta,theta1)
 
 % Combine theta locations
 theta1(theta1 >= 2*pi) = theta1(theta1 >= 2*pi) - 2*pi;
@@ -23,40 +23,36 @@ EL(size(theta,1)).el_in0.mat = [];
 EL(size(theta,1)).el_in0.geom = [];
 EL = EL';
 
+% Properties for Bench Elements
+E = 1000;
+R = .1;
+A = pi*R^2;
+Izz = pi*R^4/4;
+Iyy = pi*R^4/4;
+J = pi*R^4/2;
 
-%% Create interaction elements
-r1 = tor(1).r;
-
-K_ax = 1; % Distribute to each node (assumes uniform nodal distribution) lbf/strain
-
-% Determine geometric properties
-E = 10e6; % Arbitralily fixed
-A = K_ax/E;
-Izz = K_shear*r1^3/(3*E);
-Iyy = pi/4*2^4;
-J = 1;
+[axial,axial_k] = strap_response(E,5.6941e+06,0,0.0001,0.0001);
 
 
 %% NODES
-% % % Must modify code for configuration other than a perfect
-% % %  circle
-x1 = C(2,1)*cos(theta);
-y1 = C(2,1)*sin(theta);
-z1 = C(2,2)*ones(size(theta))+tor(1).r;
-nodes1 = [x1 y1 z1];
-
-x2 = C(2,1)*cos(theta)+tor(1).r*cos(theta);
-y2 = C(2,1)*sin(theta)+tor(1).r*sin(theta);
-z2 = C(2,2)*ones(size(theta));
-nodes2 = [x2 y2 z2];
-
-x3 = C(2,1)*cos(theta)+tor(1).r*cos(theta+(pi/2));
-y3 = C(2,1)*sin(theta)+tor(1).r*sin(theta+(pi/2));
-z3 = C(2,2)*ones(size(theta));
-nodes3 = [x3 y3 z3];
+for i = 1:size(tori_nodes)
+    x1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1);
+    y1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),2);
+    z1 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),3)-tor(1).r;
+    nodes1(i,:) = [x1 y1 z1];
+    
+    x2 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1)+tor(1).r*cos(theta(i));
+    y2 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),2)+tor(1).r*sin(theta(i));
+    z2 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),3);
+    nodes2(i,:) = [x2 y2 z2];
+    
+    x3 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),1)+tor(1).r*cos(theta(i)+(pi/2));
+    y3 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),2)+tor(1).r*sin(theta(i)+(pi/2));
+    z3 = FEM.MODEL.nodes((length(tori_theta)+tori_nodes(i)),3);
+    nodes3(i,:) = [x3 y3 z3];
+end
 
 nodes = [nodes1; nodes2; nodes3];
-
 
 %% ORIENTATION
 orientation = zeros(size(nodes,1),3);
@@ -68,7 +64,7 @@ connect_i = [size(tori_theta,1) + tori_nodes(1:size(theta,1)) size(FEM.MODEL.nod
 connect_j = [size(tori_theta,1) +  tori_nodes(1:size(theta,1)) size(FEM.MODEL.nodes,1) + size(theta,1) + (1:(size(theta,1)))'];
 connect_g =[size(tori_theta,1) + tori_nodes(1:size(theta,1))  size(FEM.MODEL.nodes,1) + size(theta,1)*2 + (1:(size(theta,1)))'];
 connect_all = [connect_i; connect_j; connect_g];
-connect = [connect_all 4*ones(size(connect_all,1),1)];
+connect = [connect_all 2*ones(size(connect_all,1),1)];
 
 
 %% BOUNDARIES
@@ -89,7 +85,36 @@ FEM.MODEL.U_pt = [FEM.MODEL.U_pt; U];
 
 
 %% ELEMENTS
-for j = 1:size(connect,1)
+for j = 1:size(connect_i,1)
+    EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
+    
+%     % Define element functions
+%     EL(j).el = 'el4'; % Linear, corotational beam
+%     
+%     % Special element input
+%     EL(j).el_in0.break = 0;
+%     EL(j).el_in0.mat = [E .3]; % [E nu]
+%     EL(j).el_in0.geom = [A Izz Iyy 0 J]; % [A Izz Iyy ky J]
+%     EL(j).el_in0.axial = axial;
+%     EL(j).el_in0.axial_k = axial_k;
+%     % Element prestrain
+%     EL(j).el_in0.eps0 = 0;
+
+    % Define element functions
+    EL(j).el = 'el2'; % Linear, corotational beam
+    
+    % Special element input
+    EL(j).el_in0.break = 0;
+    EL(j).el_in0.mat = [E .3]; % [E nu]
+    EL(j).el_in0.geom = [A Izz Iyy 0 J]; % [A Izz Iyy ky J]
+    
+    % Element prestrain
+    EL(j).el_in0.eps0 = 0;
+
+
+end
+
+for j = size(connect_i,1)+1:size(connect_all,1)
     EL(j).el_in0 = instantiate_EL; % Instatiate all element variables
     
     % Define element functions

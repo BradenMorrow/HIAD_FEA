@@ -1,98 +1,82 @@
-
 clear
+clc
 close all
 
 %% USER INPUT
-% Define inboard torus major radius
-r_major = 30;
+% Define file paths to tori4 and tori5
+files = ["T4.mat", "T5.mat"];
+
+% Define inboard torus major radius to estimate bench node spacing
+r_major = 79;
 
 % Minor radius of tori
-r_minor = [10
-          10]/2;
-
-% ADD STRAP INTERSECTION LOCATION HERE
-      
-% HIAD angle with vertical
-alpha_cone = 70;
+r_minor = [6.7
+    6.7];
 
 % Minimum number of torus nodes
-min_nodes = 10;
+min_nodes = 300;
 
 % number of loop straps in strap sets
-num_straps = 6;
+num_straps = 16;
 
 % number of test benches located radially around the tori
 num_bench = 4;
 
-% Half of size of bench (half of bench length, offset on either side of center)
-bench_length = 2;
+% Half of size of bench in. (half of bench length, offset on either side of center)
+bench_length = 12;
 
 % Location of first bench
 b_theta0 = 0*pi/180;
 
 % number of test straps located radially around the tori
-num_teststraps = 2;
+num_teststraps = 16;
 
 % Location of first strap
-ts_theta0 = 15*pi/180;
+ts_theta0 = 0*pi/180;
 
 % load to be applied to testing straps
-load = 10;
+total_load = 30; %lbf
 
-% Location of testing strap end in Radius-Z space
-test_rad = 20;
-test_z = 20;
+%Location of cable end in Radius space
+cable_rad = 30;
+
+%% Defined Model Inputs
+
+% User defined torus properties
+tor = define_tor(r_minor);
+
+% User defined strap properties and configuration
+straps = define_straps(r_minor,num_straps);
 
 % END USER INPUT
 
-%% Define Model Inputs
-% Torus centers
-% C = [X Z] locations
-C = two_tori_config(r_major,r_minor,alpha_cone);
-
-% User defined torus properties
-tor = define_tor(C,r_minor);
-
-% User defined strap properties and configuration
-straps = define_straps(C,r_minor,alpha_cone,num_straps);
-
-
 %% BUILD MODEL
 % Assemble torus elements
-[FEM, theta, th_bench, th_tst] = build_tor(C,tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length);
+[FEM, theta, th_bench, th_tst, C, offset] = DIC_build_tori(tor,straps,min_nodes,num_bench,num_teststraps,b_theta0,ts_theta0,r_major,bench_length,files);
 
 % Assemble interaction elements
 pre_str = zeros(size(tor,1),1); % Interaction element prestrain
-[FEM,K_shear] = build_int(FEM,theta,C,tor,pre_str);
+[FEM, K_shear] = build_int(FEM,theta,C,tor,pre_str);
 
 % Assemble link and strap elements
-[FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,C,tor,straps);
-
-% Modeling controls and plot
-FEM.PLOT = plot_controls;
+[FEM,strap_type,strap_EL_1] = build_links_straps(FEM,theta,tor,straps, offset);
 
 % Assemble testing bench elements
-[FEM] = build_bench(FEM,C,tor,theta,th_bench, K_shear);
-
+[FEM] = build_bench(FEM,tor,theta,th_bench);
+ 
 % Assemble testing link and strap elements
-[FEM,rebound,test_theta] = build_testing_links_straps(FEM,C,tor,straps,load,theta,th_tst,test_rad,test_z);
-
-% Normalize vertices (flip on Z and lower first tori center to sit at z = 0); 
-FEM.MODEL.nodes(:,3) = FEM.MODEL.nodes(:,3)*(-1)+C(2,2);
-
-%Plot initial FEM
-FEM_plot(FEM)
+[FEM, rebound, test_theta, cable_post,strap_post] = build_testing_links_straps(FEM,tor,straps,total_load,theta,th_tst,cable_rad,C);
 
 % Initialize cord force arrays
-FEM.OUT.cord_f = zeros(50,7);
+FEM.OUT.cord_f = zeros(50,2);
 th = size(FEM.MODEL.theta,1);
 for i = 1:2
     FEM.OUT.cord_f(1,i) = FEM.EL((i - 1)*th + 1).el_in0.f(1);
 end
 
-FEM.OUT.cord_f2 = zeros(50,7);
+FEM.OUT.cord_f2 = zeros(50,2);
 th = size(FEM.MODEL.theta,1);
-for i = 1:3
+for i = 1:2
     FEM.OUT.cord_f2(1,i) = FEM.EL((i - 1)*th + 1).el_in0.f(2);
 end
 
@@ -102,25 +86,32 @@ end
 tic
 t = cputime;
 
+FEM.PLOT = plot_controls;
+
 % Force based analysis
 FEM.ANALYSIS = FE_controls1;
 [FEM_out] = increment_FE(FEM);
 
-[FEM_out] = bound_displace_strap(FEM_out, rebound,test_theta,C,tor);
+disp('Loading Analysis Finished.')
 
 % Displacement based analysis
+[FEM_out] = rebound_strap(FEM_out, rebound);
+
+FEM_out.MODEL.F_pre = FEM_out.OUT.Fext_inc(:,end);
+FEM_out.MODEL.U0 = FEM_out.OUT.U;
+
 FEM_out.ANALYSIS = FE_controls2;
 [FEM_out2] = increment_FE(FEM_out);
-
 cpu_run_time = cputime - t;
 toc
 
+save("./results/Old Model/FEM.mat", "FEM");
+save("./results/Old Model/FEM_out.mat", "FEM_out");
+save("./results/Old Model/FEM_out2.mat", "FEM_out2");
+
+% END ANALYSIS
+
 %% POST PROCESS RESULTS
-% % To be added
-% FE_plot(FEM_out2)
-% 
-% save('FEM_out')
+post_processing(FEM,FEM_out,FEM_out2,cable_post,theta,rebound,strap_post);
+
 % % END POST PROCESS RESULTS
-
-
-
