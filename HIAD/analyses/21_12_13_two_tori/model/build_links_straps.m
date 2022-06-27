@@ -68,11 +68,7 @@ nodes_1 = [];
 nodes_2 = [];
 
 for i = 1:size(straps,1)
-    if i == 17
-        a = 1;
-    end
-    
-    
+
     
     % Theta vector for node 1
     theta_1 = linspace(straps(i).theta0,straps(i).theta0 + 2*pi,straps(i).num_straps + 1)';
